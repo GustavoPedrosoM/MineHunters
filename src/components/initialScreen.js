@@ -1,6 +1,9 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import LevelSelection from '../../screens/levelSelection'; // Import the LevelSelection component
+import { View, StyleSheet} from 'react-native';
+import { useFonts } from 'expo-font';
+import { Text, Button, Modal, Portal } from 'react-native-paper';
+import LevelSelection from '../../screens/levelSelection';
+
 
 const InitialScreen = ({ navigation }) => {
   const [showLevelSelection, setShowLevelSelection] = useState(false);
@@ -12,17 +15,25 @@ const InitialScreen = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Campo Minado</Text>
-      <TouchableOpacity
-        style={styles.button}
-        onPress={() => setShowLevelSelection(true)}>
-        <Text style={styles.textButton}>Jogar</Text>
-      </TouchableOpacity>
-      <LevelSelection
-        isVisible={showLevelSelection}
-        onLevelSelected={onLevelSelected}
-        onCancel={() => setShowLevelSelection(false)}
-      />
+      <Text style={styles.title}>MegaMine Adventure</Text>
+      <Text style={styles.subtitle}>Campo Minado</Text>
+      <Button mode="contained" style={styles.playButton} onPress={() => setShowLevelSelection(true)}>
+        Jogar
+      </Button>
+      <Button mode="outlined" style={styles.Button} onPress={() => navigation.navigate('Home')}>
+        Loja
+      </Button>
+      <Button mode="outlined" style={styles.Button} onPress={() => navigation.navigate('Home')}>
+      Configurações
+      </Button>
+      <Button mode="outlined" style={styles.Button} onPress={() => navigation.navigate('Home')}>
+        Sair
+      </Button>
+      <Portal>
+        <Modal visible={showLevelSelection} onDismiss={() => setShowLevelSelection(false)}>
+          <LevelSelection onLevelSelected={onLevelSelected} onCancel={() => setShowLevelSelection(false)} />
+        </Modal>
+      </Portal>
     </View>
   );
 };
@@ -32,27 +43,29 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#27ae60'
+    backgroundColor: '#333', // Fundo escuro
   },
   title: {
-    fontSize: 45,
-    fontWeight: 'bold',
+    fontSize: 50,
+    fontFamily: 'Jaini-Regular',
+    color: '#ffda79', // Amarelo vibrante
+  },
+  subtitle: {
+    fontSize: 30,
+    fontFamily: 'Jaini-Regular',
     marginBottom: 40,
-    color: '#222',
+    color: '#ffda79',
   },
-  button: {
-    backgroundColor: '#ffda79',
-    width: 100,
-    height: 70,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: 5,
+  playButton: {
+    marginTop: 20,
+    width: 150,
+    backgroundColor: '#2ecc71', // Verde vibrante
   },
-  textButton: {
-    fontSize: 25,
-    color: '#222',
-    fontWeight: 'bold',
-  }
+  Button: {
+    marginTop: 10,
+    width: 150,
+    borderColor: '#ffda79', // Amarelo vibrante
+  },
 });
 
 export default InitialScreen;
