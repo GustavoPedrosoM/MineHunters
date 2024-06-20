@@ -1,13 +1,24 @@
 import React, { Component } from 'react';
-import { View, StyleSheet, Alert,} from 'react-native';
+import { View, StyleSheet, Alert } from 'react-native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { NavigationContainer } from '@react-navigation/native';
-import { Provider as PaperProvider } from 'react-native-paper';
+import { Provider as PaperProvider, DefaultTheme } from 'react-native-paper';
+
+const theme = {
+  ...DefaultTheme,
+  roundness: 2,
+  colors: {
+    ...DefaultTheme.colors,
+    primary: '#3498db',
+    accent: '#f1c40f',
+  },
+};
 
 import params from './src/params';
 import MineField from './src/components/MineField';
 import Header from './src/components/Header';
 import InitialScreen from './src/components/initialScreen';
+import LevelSelection from './screens/levelSelection'; // Importar a tela de seleção de nível
 import {
   createMinedBoard,
   cloneBoard,
@@ -148,7 +159,7 @@ class GameScreen extends Component {
 
 const App = () => {
   return (
-    <PaperProvider>
+    <PaperProvider theme={theme}>
       <NavigationContainer>
         <Stack.Navigator initialRouteName="Home" screenOptions={{ headerShown: false }}>
           <Stack.Screen name="Home" component={InitialScreen} />

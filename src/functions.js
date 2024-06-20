@@ -12,7 +12,7 @@ const createBoard = (rows, columns) => {
   );
 };
 
-const spreadMines = (board, minesAmount) => {
+/*const spreadMines = (board, minesAmount) => {
   const rows = board.length;
   const columns = board[0].length;
   let minesPlanted = 0;
@@ -26,7 +26,21 @@ const spreadMines = (board, minesAmount) => {
       minesPlanted++;
     }
   }
+};*/
+const spreadMines = (board, minesAmount) => {
+  const flatBoard = board.flat();
+  let minesPlanted = 0;
+
+  while (minesPlanted < minesAmount) {
+    const randomIndex = Math.floor(Math.random() * flatBoard.length);
+
+    if (!flatBoard[randomIndex].mined) {
+      flatBoard[randomIndex].mined = true;
+      minesPlanted++;
+    }
+  }
 };
+
 
 const createMinedBoard = (rows, columns, minesAmount) => {
   const board = createBoard(rows, columns);
