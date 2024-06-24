@@ -15,10 +15,10 @@ const Field = React.memo((props) => {
 
   let color = null;
   if (nearMines > 0) {
-    if (nearMines === 1) color = '#2A28D7';
-    else if (nearMines === 2) color = '#2B520F';
-    else if (nearMines > 2 && nearMines < 6) color = '#F9060A';
-    else if (nearMines >= 6) color = '#F221A9';
+    if (nearMines === 1) color = '#0984e3';
+    else if (nearMines === 2) color = '#00b894';
+    else if (nearMines > 2 && nearMines < 6) color = '#ff9f43';
+    else if (nearMines >= 6) color = '#EA2027';
   }
 
   return (
@@ -41,17 +41,14 @@ const styles = StyleSheet.create({
     borderWidth: params.borderSize,
   },
   regular: {
-    backgroundColor: '#009432',
-    borderLeftColor: '#20bf6b',
-    borderTopColor: '#20bf6b',
-    borderRightColor: '#333',
-    borderBottomColor: '#333',
+    backgroundColor: '#363636',
+    borderRadius: 25,
   },
   opened: {
-    backgroundColor: '#ffda79',
-    borderColor: '#ccae62',
+    backgroundColor: '#1C1C1C',
     alignItems: 'center',
     justifyContent: 'center',
+    borderRadius: 25,
   },
   label: {
     fontWeight: 'bold',

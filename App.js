@@ -18,7 +18,6 @@ import params from './src/params';
 import MineField from './src/components/MineField';
 import Header from './src/components/Header';
 import InitialScreen from './src/components/initialScreen';
-import LevelSelection from './screens/levelSelection'; // Importar a tela de seleção de nível
 import {
   createMinedBoard,
   cloneBoard,
@@ -177,7 +176,7 @@ const styles = StyleSheet.create({
   },
   board: {
     alignItems: 'center',
-    backgroundColor: '#ffda79',
+    backgroundColor: '#333',
   },
 });
 

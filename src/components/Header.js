@@ -1,5 +1,6 @@
 import React from 'react';
 import { View, StyleSheet, Text, TouchableOpacity } from 'react-native';
+import {Button} from 'react-native-paper';
 import Flag from './Flag';
 
 const Header = React.memo(({ flagsLeft, onNewGame, onExit, onFlagPress }) => (
@@ -10,12 +11,12 @@ const Header = React.memo(({ flagsLeft, onNewGame, onExit, onFlagPress }) => (
       </TouchableOpacity>
       <Text style={styles.flagsLeft}>= {flagsLeft}</Text>
     </View>
-    <TouchableOpacity style={styles.button} onPress={onNewGame}>
-      <Text style={styles.buttonLabel}>Novo Jogo</Text>
-    </TouchableOpacity>
-    <TouchableOpacity style={styles.button} onPress={onExit}>
-      <Text style={styles.buttonLabel}>Sair</Text>
-    </TouchableOpacity>
+    <Button mode="outlined" style={styles.button} onPress={onNewGame}>
+            Novo Jogo
+    </Button>
+    <Button mode="outlined" style={styles.button} onPress={onExit}>
+            Sair
+    </Button>
   </View>
 ));
 
@@ -23,7 +24,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     flexDirection: 'row',
-    backgroundColor: '#74b9ff',
+    backgroundColor: '#333',
     alignItems: 'center',
     justifyContent: 'space-around',
     paddingTop: 20,
@@ -44,15 +45,10 @@ const styles = StyleSheet.create({
     color: 'black',
   },
   button: {
-    backgroundColor: '#ffda79',
     padding: 5,
     borderRadius: 5,
     marginLeft: 10,
-  },
-  buttonLabel: {
-    fontSize: 20,
-    color: 'black',
-    fontWeight: 'bold',
+    borderColor: '#ffda79',
   },
 });
 
