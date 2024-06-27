@@ -1,17 +1,18 @@
 import React from 'react';
 import { View, StyleSheet, Text, TouchableWithoutFeedback } from 'react-native';
-
-import params from '../params';
 import Mine from './Mine';
 import Flag from './Flag';
 
 const Field = React.memo((props) => {
-  const { mined, opened, nearMines, exploded, flagged, onOpen, onSelect } = props;
+  const { mined, opened, nearMines, exploded, flagged, onOpen, onSelect, blockSize } = props;
 
-  const styleField = [styles.field, 
-    opened ? styles.opened : styles.regular, 
-    exploded && styles.exploded, 
-    flagged && !opened && styles.flagged];
+  const styleField = [
+    styles.field,
+    opened ? styles.opened : styles.regular,
+    exploded && styles.exploded,
+    flagged && !opened && styles.flagged,
+    { width: blockSize, height: blockSize, borderWidth: blockSize / 15 },
+  ];
 
   let color = null;
   if (nearMines > 0) {
@@ -25,7 +26,7 @@ const Field = React.memo((props) => {
     <TouchableWithoutFeedback onPress={onOpen} onLongPress={onSelect}>
       <View style={styleField}>
         {!mined && opened && nearMines > 0 && (
-          <Text style={[styles.label, { color }]}>{nearMines}</Text>
+          <Text style={[styles.label, { color, fontSize: blockSize / 2 }]}>{nearMines}</Text>
         )}
         {mined && opened && <Mine />}
         {flagged && !opened && <Flag />}
@@ -36,27 +37,32 @@ const Field = React.memo((props) => {
 
 const styles = StyleSheet.create({
   field: {
-    height: params.blockSize,
-    width: params.blockSize,
-    borderWidth: params.borderSize,
-  },
-  regular: {
-    backgroundColor: '#363636',
-    borderRadius: 25,
-  },
-  opened: {
-    backgroundColor: '#1C1C1C',
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius: 25,
+  },
+  regular: {
+    backgroundColor: '#444',
+    borderColor: '#888',
+    borderRadius: 8,
+    borderWidth: 2,
+  },
+  opened: {
+    backgroundColor: '#ddd',
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 8,
+    borderColor: '#bbb',
   },
   label: {
     fontWeight: 'bold',
-    fontSize: params.fontSize,
   },
   exploded: {
-    backgroundColor: '#EA2027',
-    borderColor: '#EA2027',
+    backgroundColor: '#ff6666',
+    borderColor: '#ff6666',
+  },
+  flagged: {
+    backgroundColor: '#ccc',
+    borderColor: '#ccc',
   },
 });
 

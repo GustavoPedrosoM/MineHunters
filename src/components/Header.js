@@ -1,37 +1,53 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, StyleSheet, Text, TouchableOpacity } from 'react-native';
-import {Button} from 'react-native-paper';
+import { Button, Menu, IconButton } from 'react-native-paper';
 import Flag from './Flag';
 
-const Header = React.memo(({ flagsLeft, onNewGame, onExit, onFlagPress }) => (
-  <View style={styles.container}>
-    <View style={styles.flagContainer}>
-      <TouchableOpacity style={styles.flagButton} onPress={onFlagPress}>
-        <Flag bigger />
-      </TouchableOpacity>
-      <Text style={styles.flagsLeft}>= {flagsLeft}</Text>
+const Header = React.memo(({ flagsLeft, onNewGame, onExit, onFlagPress }) => {
+  const [menuVisible, setMenuVisible] = useState(false);
+
+  const openMenu = () => setMenuVisible(true);
+  const closeMenu = () => setMenuVisible(false);
+
+  return (
+    <View style={styles.container}>
+      <View style={styles.flagContainer}>
+        <TouchableOpacity style={styles.flagButton} onPress={onFlagPress}>
+          <Flag bigger />
+        </TouchableOpacity>
+        <Text style={styles.flagsLeft}>= {flagsLeft}</Text>
+      </View>
+      <Menu
+        visible={menuVisible}
+        onDismiss={closeMenu}
+        anchor={
+          <IconButton
+            icon="menu"
+            color="black"
+            size={30}
+            onPress={openMenu}
+          />
+        }
+      >
+        <Menu.Item onPress={onNewGame} title="Novo Jogo" />
+        <Menu.Item onPress={onExit} title="Sair" />
+      </Menu>
     </View>
-    <Button mode="outlined" style={styles.button} onPress={onNewGame}>
-            Novo Jogo
-    </Button>
-    <Button mode="outlined" style={styles.button} onPress={onExit}>
-            Sair
-    </Button>
-  </View>
-));
+  );
+});
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
     flexDirection: 'row',
-    backgroundColor: '#333',
+    backgroundColor: '#ccc',
     alignItems: 'center',
-    justifyContent: 'space-around',
-    paddingTop: 20,
+    justifyContent: 'space-between',
+    paddingVertical: 20,
     paddingHorizontal: 20,
   },
   flagContainer: {
     flexDirection: 'row',
+    alignItems: 'center',
   },
   flagButton: {
     marginTop: 10,
@@ -43,12 +59,6 @@ const styles = StyleSheet.create({
     paddingTop: 5,
     marginLeft: 20,
     color: 'black',
-  },
-  button: {
-    padding: 5,
-    borderRadius: 5,
-    marginLeft: 10,
-    borderColor: '#ffda79',
   },
 });
 

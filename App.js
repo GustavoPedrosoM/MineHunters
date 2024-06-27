@@ -38,20 +38,28 @@ class GameScreen extends Component {
   }
 
   minesAmount = () => {
-    const cols = params.getColumsAmount();
-    const rows = params.getRowsAmount();
-    return Math.ceil(cols * rows * this.props.route.params.difficultLevel);
+    const cols = params.getColumsAmount(this.props.route.params.difficultLevel);
+    const rows = params.getRowsAmount(this.props.route.params.difficultLevel);
+    const level = this.props.route.params.difficultLevel;
+    let proportion = level;
+
+    // Ajustar a proporção de minas para o nível difícil
+    if (level === 0.3) {
+      proportion = 0.15; // Reduzir a proporção de minas para o nível difícil
+    }
+
+    return Math.ceil(cols * rows * proportion);
   };
 
   createInitialBoard = () => {
-    const cols = params.getColumsAmount();
-    const rows = params.getRowsAmount();
+    const cols = params.getColumsAmount(this.props.route.params.difficultLevel);
+    const rows = params.getRowsAmount(this.props.route.params.difficultLevel);
     return createMinedBoard(rows, cols, this.minesAmount());
   };
 
   createState = () => {
-    const cols = params.getColumsAmount();
-    const rows = params.getRowsAmount();
+    const cols = params.getColumsAmount(this.props.route.params.difficultLevel);
+    const rows = params.getRowsAmount(this.props.route.params.difficultLevel);
     return {
       board: createMinedBoard(rows, cols, this.minesAmount()),
       won: false,
@@ -135,21 +143,28 @@ class GameScreen extends Component {
     const { navigation } = this.props;
     const { board } = this.state;
     const flagsLeft = this.minesAmount() - flagsUsed(board);
+    const blockSize = params.getBlockSize(params.getRowsAmount(this.props.route.params.difficultLevel), params.getColumsAmount(this.props.route.params.difficultLevel));
+
     return (
       <View style={styles.container}>
-        <Header
-          flagsLeft={flagsLeft}
-          onNewGame={() => {
-            this.setState(this.createState());
-          }}
-          onExit={() => navigation.navigate('Home')}
-        />
-        <View style={styles.board}>
-          <MineField
-            board={board}
-            onOpenField={this.onOpenField}
-            onSelectField={this.onSelectField}
+        <View style={styles.headerContainer}>
+          <Header
+            flagsLeft={flagsLeft}
+            onNewGame={() => {
+              this.setState(this.createState());
+            }}
+            onExit={() => navigation.navigate('Home')}
           />
+        </View>
+        <View style={styles.boardContainer}>
+          <View style={[styles.board, { width: params.boardSize, height: params.boardSize }]}>
+            <MineField
+              board={board}
+              onOpenField={this.onOpenField}
+              onSelectField={this.onSelectField}
+              blockSize={blockSize}
+            />
+          </View>
         </View>
       </View>
     );
@@ -172,10 +187,18 @@ const App = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'flex-end',
+    backgroundColor: 'black',
+  },
+  headerContainer: {
+    flex: 1,
+    justifyContent: 'flex-start',
+  },
+  boardContainer: {
+    flex: 9,
+    justifyContent: 'center', // Centraliza verticalmente
+    alignItems: 'center', // Centraliza horizontalmente
   },
   board: {
-    alignItems: 'center',
     backgroundColor: '#333',
   },
 });

@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from 'react';
-import { View, StyleSheet, ScrollView } from 'react-native';
-import { Text, Button, Modal, Portal, Card, Title, Paragraph } from 'react-native-paper';
+import { View, StyleSheet, ImageBackground } from 'react-native';
+import { Text, Button, Modal, Portal } from 'react-native-paper';
 import LevelSelection from '../../screens/levelSelection';
 
 const InitialScreen = ({ navigation }) => {
@@ -12,99 +12,43 @@ const InitialScreen = ({ navigation }) => {
   }, [navigation]);
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-
-      <View style={styles.containerGameName}>
-        <Text style={styles.title}>MegaMine Adventure</Text>
-        <Text style={styles.subtitle}>Campo Minado</Text>
+    <ImageBackground source={require('../assets/images/op1.png')} style={styles.background} >
+      <View style={styles.container}>
+        <Button mode="contained" style={styles.playButton} onPress={() => setShowLevelSelection(true)}>
+          <Text style={styles.textPlayButton}>JOGAR</Text>
+        </Button>
+        <Portal>
+          <Modal visible={showLevelSelection} onDismiss={() => setShowLevelSelection(false)}>
+            <LevelSelection 
+              isVisible={showLevelSelection} 
+              onLevelSelected={onLevelSelected} 
+              onCancel={() => setShowLevelSelection(false)} 
+            />
+          </Modal>
+        </Portal>
       </View>
-
-      <Card style={styles.card}>
-        <Card.Content>
-          <Title style={styles.cardTitle}>Bem-vindo!</Title>
-          <Paragraph style={styles.cardText}>
-            Explore um emocionante jogo de campo minado com vários níveis de dificuldade.
-            Escolha o seu desafio e mergulhe nessa aventura!
-          </Paragraph>
-          <Button mode="contained" style={styles.playButton} onPress={() => setShowLevelSelection(true)}>
-            Jogar
-          </Button>
-          <Button mode="outlined" style={styles.button} onPress={() => navigation.navigate('Home')}>
-            Loja
-          </Button>
-          <Button mode="outlined" style={styles.button} onPress={() => navigation.navigate('Home')}>
-            Configurações
-          </Button>
-          <Button mode="outlined" style={styles.button} onPress={() => navigation.navigate('Home')}>
-            Sair
-          </Button>
-        </Card.Content>
-      </Card>
-
-      <Portal>
-        <Modal visible={showLevelSelection} onDismiss={() => setShowLevelSelection(false)}>
-          <LevelSelection 
-            isVisible={showLevelSelection} 
-            onLevelSelected={onLevelSelected} 
-            onCancel={() => setShowLevelSelection(false)} 
-          />
-        </Modal>
-      </Portal>
-    </ScrollView>
+    </ImageBackground>
   );
 };
 
 const styles = StyleSheet.create({
+  background: {
+    flex: 1,
+  },
   container: {
-    flexGrow: 1,
-    justifyContent: 'center',
+    flex: 1,
+    justifyContent: 'flex-end',
     alignItems: 'center',
-    backgroundColor: '#333', // Cor de fundo
-    paddingVertical: 20,
-  },
-  containerGameName: {
-    marginBottom: 30,
-  },
-  title: {
-    fontSize: 50,
-    fontFamily: 'Jaini-Regular',
-    color: '#ffda79', // Cor do título
-    textAlign: 'center',
-  },
-  subtitle: {
-    fontSize: 30,
-    fontFamily: 'Jaini-Regular',
-    color: '#ffda79', // Cor do subtítulo
-    textAlign: 'center',
-  },
-  card: {
-    width: '80%',
-    backgroundColor: '#3d3d3d', // Cor do card
-    borderRadius: 10,
-    padding: 20,
-    alignItems: 'center',
-  },
-  cardTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#ffda79', // Cor do título do card
-    textAlign: 'center',
-  },
-  cardText: {
-    fontSize: 16,
-    color: '#ffda79', // Cor do texto do card
-    textAlign: 'center',
-    marginBottom: 10,
   },
   playButton: {
-    width: '100%',
-    marginTop: 20,
-    backgroundColor: '#20bf6b', // Cor do botão Jogar
+    marginBottom: 100, // Ajuste conforme necessário para manter o botão na mesma altura
+    width: 100, // Diminuir a largura do botão
+    backgroundColor: '#20bf6b',
   },
-  button: {
-    width: '100%',
-    marginTop: 10,
-    borderColor: '#ffda79', // Cor da borda dos botões
+  textPlayButton: {
+    fontSize: 15, // Aumentar o tamanho da fonte
+    fontWeight: 'bold',
+    color: 'white',
   },
 });
 

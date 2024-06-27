@@ -1,7 +1,6 @@
 import React from 'react';
 import { View, StyleSheet } from 'react-native';
 import { Button, Portal, Dialog } from 'react-native-paper';
-import { red } from 'react-native-reanimated/lib/typescript/reanimated2/Colors';
 
 const LevelSelection = React.memo((props) => {
   const { isVisible, onCancel, onLevelSelected } = props;
