@@ -28,8 +28,12 @@ const Field = React.memo((props) => {
         {!mined && opened && nearMines > 0 && (
           <Text style={[styles.label, { color, fontSize: blockSize / 2 }]}>{nearMines}</Text>
         )}
-        {mined && opened && <Mine />}
-        {flagged && !opened && <Flag />}
+        {mined && opened && <Mine blockSize={blockSize} />}
+        {flagged && !opened && (
+          <View style={styles.flagContainer}>
+            <Flag blockSize={blockSize} />
+          </View>
+        )}
       </View>
     </TouchableWithoutFeedback>
   );
@@ -39,30 +43,33 @@ const styles = StyleSheet.create({
   field: {
     alignItems: 'center',
     justifyContent: 'center',
+    elevation: 15,
   },
   regular: {
-    backgroundColor: '#444',
-    borderColor: '#888',
-    borderRadius: 8,
-    borderWidth: 2,
+    backgroundColor: '#A0522D',
+    borderTopColor: '#F4A460',
+    borderLeftColor: '#F4A460', 
+    borderRightColor: '#8B4513',
+    borderBottomColor: '#8B4513',
+    borderRadius: 10,
   },
   opened: {
-    backgroundColor: '#ddd',
+    backgroundColor: '#DEB887',
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius: 8,
-    borderColor: '#bbb',
+    borderRadius: 5,
+    borderColor: '#F5DEB3',
   },
   label: {
     fontWeight: 'bold',
   },
   exploded: {
-    backgroundColor: '#ff6666',
-    borderColor: '#ff6666',
+    backgroundColor: '#e74c3c',
+    borderColor: '#c0392b',
   },
-  flagged: {
-    backgroundColor: '#ccc',
-    borderColor: '#ccc',
+  flagContainer: {
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
 

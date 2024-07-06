@@ -44,7 +44,7 @@ const LevelSelection = React.memo((props) => {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: '#333'
+    backgroundColor: '#222'
   },
   containerTitle: {
     color: '#ffda79'

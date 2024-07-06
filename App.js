@@ -1,23 +1,16 @@
 import React, { Component } from 'react';
-import { View, StyleSheet, Alert } from 'react-native';
+import { View, StyleSheet, Alert, ImageBackground } from 'react-native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { NavigationContainer } from '@react-navigation/native';
 import { Provider as PaperProvider, DefaultTheme } from 'react-native-paper';
 
-const theme = {
-  ...DefaultTheme,
-  roundness: 2,
-  colors: {
-    ...DefaultTheme.colors,
-    primary: '#3498db',
-    accent: '#f1c40f',
-  },
-};
 
-import params from './src/params';
-import MineField from './src/components/MineField';
 import Header from './src/components/Header';
 import InitialScreen from './src/components/initialScreen';
+import MineField from './src/components/MineField';
+import Timer from './src/components/Timer';
+import params from './src/params';  
+
 import {
   createMinedBoard,
   cloneBoard,
@@ -29,12 +22,23 @@ import {
   flagsUsed,
 } from './src/functions';
 
+const theme = {
+  ...DefaultTheme,
+  roundness: 2,
+  colors: {
+    ...DefaultTheme.colors,
+    primary: '#3498db',
+    accent: '#f1c40f',
+  },
+};
+
 const Stack = createStackNavigator();
 
 class GameScreen extends Component {
   constructor(props) {
     super(props);
     this.state = this.createState();
+    this.timerRef = React.createRef();
   }
 
   minesAmount = () => {
@@ -43,18 +47,11 @@ class GameScreen extends Component {
     const level = this.props.route.params.difficultLevel;
     let proportion = level;
 
-    // Ajustar a proporção de minas para o nível difícil
     if (level === 0.3) {
-      proportion = 0.15; // Reduzir a proporção de minas para o nível difícil
+      proportion = 0.15;
     }
 
     return Math.ceil(cols * rows * proportion);
-  };
-
-  createInitialBoard = () => {
-    const cols = params.getColumsAmount(this.props.route.params.difficultLevel);
-    const rows = params.getRowsAmount(this.props.route.params.difficultLevel);
-    return createMinedBoard(rows, cols, this.minesAmount());
   };
 
   createState = () => {
@@ -64,14 +61,16 @@ class GameScreen extends Component {
       board: createMinedBoard(rows, cols, this.minesAmount()),
       won: false,
       lost: false,
+      gameStarted: false,
     };
   };
 
-  componentDidMount() {
-    this.setState(this.createState());
-  }
-
   onOpenField = (row, column) => {
+    if (!this.state.gameStarted) {
+      this.setState({ gameStarted: true });
+      this.timerRef.current.start();
+    }
+
     const { board } = this.state;
     const newBoard = cloneBoard(board);
     openField(newBoard, row, column);
@@ -80,6 +79,8 @@ class GameScreen extends Component {
 
     if (lost) {
       showMines(newBoard);
+      this.timerRef.current.stop();
+      this.timerRef.current.reset();
       Alert.alert(
         'Derrota',
         'Oops! Você perdeu o jogo. Tente novamente!',
@@ -96,6 +97,8 @@ class GameScreen extends Component {
     }
 
     if (won) {
+      this.timerRef.current.stop();
+      this.timerRef.current.reset();
       Alert.alert(
         'Vitória',
         'Parabéns! Você venceu o jogo!',
@@ -121,6 +124,8 @@ class GameScreen extends Component {
     const won = wonGame(newBoard);
 
     if (won) {
+      this.timerRef.current.stop();
+      this.timerRef.current.reset();
       Alert.alert(
         'Parabéns',
         'Você venceu o jogo!',
@@ -139,34 +144,45 @@ class GameScreen extends Component {
     this.setState({ board: newBoard, won });
   };
 
+  handleNewGame = () => {
+    this.setState(this.createState());
+    this.timerRef.current.reset();
+  };
+
   render() {
     const { navigation } = this.props;
     const { board } = this.state;
     const flagsLeft = this.minesAmount() - flagsUsed(board);
-    const blockSize = params.getBlockSize(params.getRowsAmount(this.props.route.params.difficultLevel), params.getColumsAmount(this.props.route.params.difficultLevel));
+    const blockSize = params.getBlockSize(
+      params.getRowsAmount(this.props.route.params.difficultLevel),
+      params.getColumsAmount(this.props.route.params.difficultLevel)
+    );
 
     return (
-      <View style={styles.container}>
-        <View style={styles.headerContainer}>
-          <Header
-            flagsLeft={flagsLeft}
-            onNewGame={() => {
-              this.setState(this.createState());
-            }}
-            onExit={() => navigation.navigate('Home')}
-          />
-        </View>
-        <View style={styles.boardContainer}>
-          <View style={[styles.board, { width: params.boardSize, height: params.boardSize }]}>
-            <MineField
-              board={board}
-              onOpenField={this.onOpenField}
-              onSelectField={this.onSelectField}
-              blockSize={blockSize}
+      <ImageBackground source={require('./src/assets/images/op2.png')} style={styles.background} >
+        <View style={styles.container}>
+          <View style={styles.headerContainer}>
+            <Header
+              flagsLeft={flagsLeft}
+              onNewGame={this.handleNewGame}
+              onExit={() => navigation.navigate('Home')}
             />
           </View>
+          <View style={styles.boardContainer}>
+            <View style={[styles.board, { width: params.boardSize, height: params.boardSize }]}>
+              <MineField
+                board={board}
+                onOpenField={this.onOpenField}
+                onSelectField={this.onSelectField}
+                blockSize={blockSize}
+              />
+            </View>
+          </View>
+          <View style={styles.timerContainer}>
+            <Timer ref={this.timerRef} />
+          </View>
         </View>
-      </View>
+      </ImageBackground>
     );
   }
 }
@@ -187,7 +203,9 @@ const App = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'black',
+  },
+  background: {
+    flex: 1,
   },
   headerContainer: {
     flex: 1,
@@ -195,11 +213,13 @@ const styles = StyleSheet.create({
   },
   boardContainer: {
     flex: 9,
-    justifyContent: 'center', // Centraliza verticalmente
-    alignItems: 'center', // Centraliza horizontalmente
+    justifyContent: 'center',
+    alignItems: 'center',
   },
-  board: {
-    backgroundColor: '#333',
+  timerContainer: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: 10,
   },
 });
 

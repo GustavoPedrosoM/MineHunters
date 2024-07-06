@@ -25,7 +25,8 @@ const MineField = ({ board, onOpenField, onSelectField, blockSize }) => {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: 'black',
+    backgroundColor: 'transparent',
+    elevation: 10,
   },
   row: {
     flexDirection: 'row',
