@@ -1,15 +1,14 @@
 import React, { Component } from 'react';
-import { View, StyleSheet, Alert, ImageBackground } from 'react-native';
+import { View, StyleSheet, ImageBackground } from 'react-native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { NavigationContainer } from '@react-navigation/native';
 import { Provider as PaperProvider, DefaultTheme } from 'react-native-paper';
 
-
 import Header from './src/components/Header';
 import InitialScreen from './src/components/initialScreen';
 import MineField from './src/components/MineField';
-import Timer from './src/components/Timer';
-import params from './src/params';  
+import GameOverDialog from './src/components/gameOverDialog'; 
+import params from './src/params';
 
 import {
   createMinedBoard,
@@ -62,6 +61,8 @@ class GameScreen extends Component {
       won: false,
       lost: false,
       gameStarted: false,
+      gameOverVisible: false,
+      isWin: false,
     };
   };
 
@@ -81,37 +82,13 @@ class GameScreen extends Component {
       showMines(newBoard);
       this.timerRef.current.stop();
       this.timerRef.current.reset();
-      Alert.alert(
-        'Derrota',
-        'Oops! Você perdeu o jogo. Tente novamente!',
-        [
-          {
-            text: 'OK',
-            onPress: () => {
-              this.setState(this.createState());
-            },
-          },
-        ],
-        { cancelable: false }
-      );
+      this.setState({ gameOverVisible: true, isWin: false });
     }
 
     if (won) {
       this.timerRef.current.stop();
       this.timerRef.current.reset();
-      Alert.alert(
-        'Vitória',
-        'Parabéns! Você venceu o jogo!',
-        [
-          {
-            text: 'OK',
-            onPress: () => {
-              this.setState(this.createState());
-            },
-          },
-        ],
-        { cancelable: false }
-      );
+      this.setState({ gameOverVisible: true, isWin: true });
     }
 
     this.setState({ board: newBoard, lost, won });
@@ -126,19 +103,7 @@ class GameScreen extends Component {
     if (won) {
       this.timerRef.current.stop();
       this.timerRef.current.reset();
-      Alert.alert(
-        'Parabéns',
-        'Você venceu o jogo!',
-        [
-          {
-            text: 'OK',
-            onPress: () => {
-              this.setState(this.createState());
-            },
-          },
-        ],
-        { cancelable: false }
-      );
+      this.setState({ gameOverVisible: true, isWin: true });
     }
 
     this.setState({ board: newBoard, won });
@@ -149,9 +114,13 @@ class GameScreen extends Component {
     this.timerRef.current.reset();
   };
 
+  handleCancel = () => {
+    this.setState({ gameOverVisible: false });
+  };
+
   render() {
     const { navigation } = this.props;
-    const { board } = this.state;
+    const { board, gameOverVisible, isWin } = this.state;
     const flagsLeft = this.minesAmount() - flagsUsed(board);
     const blockSize = params.getBlockSize(
       params.getRowsAmount(this.props.route.params.difficultLevel),
@@ -159,13 +128,14 @@ class GameScreen extends Component {
     );
 
     return (
-      <ImageBackground source={require('./src/assets/images/op2.png')} style={styles.background} >
+      <ImageBackground source={require('./src/assets/images/op2.png')} style={styles.background}>
         <View style={styles.container}>
           <View style={styles.headerContainer}>
             <Header
               flagsLeft={flagsLeft}
               onNewGame={this.handleNewGame}
               onExit={() => navigation.navigate('Home')}
+              timerRef={this.timerRef}
             />
           </View>
           <View style={styles.boardContainer}>
@@ -178,9 +148,13 @@ class GameScreen extends Component {
               />
             </View>
           </View>
-          <View style={styles.timerContainer}>
-            <Timer ref={this.timerRef} />
-          </View>
+          <GameOverDialog
+            isVisible={gameOverVisible}
+            onCancel={this.handleCancel}
+            onNewGame={this.handleNewGame}
+            onExit={() => navigation.navigate('Home')}
+            isWin={isWin}
+          />
         </View>
       </ImageBackground>
     );
@@ -215,11 +189,6 @@ const styles = StyleSheet.create({
     flex: 9,
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  timerContainer: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingVertical: 10,
   },
 });
 

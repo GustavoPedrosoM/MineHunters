@@ -2,13 +2,22 @@ import React, { useState } from 'react';
 import { View, StyleSheet, Text, TouchableOpacity } from 'react-native';
 import { Button, Portal, Dialog } from 'react-native-paper';
 import { BlurView } from '@react-native-community/blur';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import Flag from './Flag';
+import Timer from './Timer';
 
-const Header = React.memo(({ flagsLeft, onNewGame, onExit, onFlagPress }) => {
+const Header = React.memo(({ flagsLeft, onNewGame, onExit, onFlagPress, timerRef }) => {
   const [menuVisible, setMenuVisible] = useState(false);
 
-  const openMenu = () => setMenuVisible(true);
-  const closeMenu = () => setMenuVisible(false);
+  const openMenu = () => {
+    timerRef.current.stop();
+    setMenuVisible(true);
+  };
+
+  const closeMenu = () => {
+    setMenuVisible(false);
+    timerRef.current.start();
+  };
 
   const handleNewGame = () => {
     closeMenu();
@@ -28,9 +37,16 @@ const Header = React.memo(({ flagsLeft, onNewGame, onExit, onFlagPress }) => {
         </TouchableOpacity>
         <Text style={styles.flagsLeft}>= {flagsLeft}</Text>
       </View>
-      <Button mode="contained" onPress={openMenu} style={styles.menuButton}>
-        <Text style={styles.textOpenMenu}>Menu</Text>
-      </Button>
+      <View style={styles.timerContainer}>
+        <Timer ref={timerRef} style={styles.timer} />
+      </View>
+      <TouchableOpacity onPress={openMenu} style={styles.iconButton}>
+        <Icon
+          name="pause-circle"
+          size={35}
+          color="#000" 
+        />
+      </TouchableOpacity>
       <Portal>
         {menuVisible && (
           <>
@@ -87,12 +103,20 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: 'black',
   },
-  menuButton: {
-    backgroundColor: '#20bf6b', 
+  iconButton: {
+    padding: 5,
   },
-  textOpenMenu: { 
+  timer: {
+    fontSize: 20,
     color: 'white',
-    fontWeight: 'bold',  // Adiciona negrito
+    fontWeight: 'bold',
+  },
+  timerContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  timerIcon: {
+    marginLeft: 5,
   },
   dialogContainer: {
     backgroundColor: '#222',

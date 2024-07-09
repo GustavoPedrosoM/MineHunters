@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, StyleSheet } from 'react-native';
+import { View, StyleSheet, Text } from 'react-native';
 import { Button, Portal, Dialog } from 'react-native-paper';
 
 const LevelSelection = React.memo((props) => {
@@ -35,7 +35,7 @@ const LevelSelection = React.memo((props) => {
           </View>
         </Dialog.Content>
         <Dialog.Actions>
-          <Button onPress={onCancel}>Cancelar</Button>
+          <Button onPress={onCancel} ><Text style={styles.cancelButtonText}>Cancelar</Text></Button>
         </Dialog.Actions>
       </Dialog>
     </Portal>
@@ -66,6 +66,9 @@ const styles = StyleSheet.create({
   },
   bgHard: {
     backgroundColor: '#F26337',
+  },
+  cancelButtonText: {
+    fontSize: 17, 
   },
 });
 

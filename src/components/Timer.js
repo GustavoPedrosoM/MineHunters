@@ -1,7 +1,8 @@
 import React, { forwardRef, useImperativeHandle, useState } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
-const Timer = forwardRef((props, ref) => {
+const Timer = forwardRef((_props, ref) => {
   const [time, setTime] = useState(0);
   const [timerId, setTimerId] = useState(null);
 
@@ -37,6 +38,7 @@ const Timer = forwardRef((props, ref) => {
 
   return (
     <View style={styles.container}>
+      <Icon name="timer" size={24} color="white" style={styles.icon} />
       <Text style={styles.timerText}>{formatTime(time)}</Text>
     </View>
   );
@@ -44,11 +46,15 @@ const Timer = forwardRef((props, ref) => {
 
 const styles = StyleSheet.create({
   container: {
+    flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)', // Background with transparency
+    backgroundColor: 'black', 
     padding: 10,
     borderRadius: 5,
+  },
+  icon: {
+    marginRight: 5,
   },
   timerText: {
     fontSize: 24,
