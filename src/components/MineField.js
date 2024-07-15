@@ -1,3 +1,4 @@
+// src/components/MineField.js
 import React, { useCallback } from 'react';
 import { View, StyleSheet } from 'react-native';
 import Field from './Field';
@@ -33,4 +34,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default MineField;
+export default React.memo(MineField);

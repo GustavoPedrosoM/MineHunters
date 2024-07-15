@@ -1,3 +1,4 @@
+// src/components/Field.js
 import React from 'react';
 import { View, StyleSheet, Text, TouchableWithoutFeedback } from 'react-native';
 import Mine from './Mine';
