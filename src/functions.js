@@ -1,5 +1,7 @@
+import params from './params';
+
 const createBoard = (rows, columns) => {
-  return Array.from({ length: rows }, (_, row) => 
+  return Array.from({ length: rows }, (_, row) =>
     Array.from({ length: columns }, (_, column) => ({
       row,
       column,
@@ -12,17 +14,16 @@ const createBoard = (rows, columns) => {
   );
 };
 
-const spreadMines = (board, minesAmount) => {
-  const rows = board.length;
-  const columns = board[0].length;
+const spreadMines = (board, minesAmount, excludeRow, excludeColumn) => {
+  const flatBoard = board.flat();
   let minesPlanted = 0;
 
   while (minesPlanted < minesAmount) {
-    const rowSel = Math.floor(Math.random() * rows);
-    const columnSel = Math.floor(Math.random() * columns);
+    const randomIndex = Math.floor(Math.random() * flatBoard.length);
+    const cell = flatBoard[randomIndex];
 
-    if (!board[rowSel][columnSel].mined) {
-      board[rowSel][columnSel].mined = true;
+    if (!cell.mined && (cell.row !== excludeRow || cell.column !== excludeColumn)) {
+      cell.mined = true;
       minesPlanted++;
     }
   }
@@ -30,7 +31,6 @@ const spreadMines = (board, minesAmount) => {
 
 const createMinedBoard = (rows, columns, minesAmount) => {
   const board = createBoard(rows, columns);
-  spreadMines(board, minesAmount);
   return board;
 };
 
@@ -77,10 +77,41 @@ const showMines = (board) => fields(board).filter(field => field.mined).forEach(
 
 const invertFlag = (board, row, column) => {
   const field = board[row][column];
-  field.flagged = !field.flagged;
+  if (!field.opened) {
+    field.flagged = !field.flagged;
+  }
 };
 
 const flagsUsed = (board) => fields(board).filter(field => field.flagged).length;
+
+// Função para calcular a quantidade de minas com base no nível de dificuldade
+const getMineCount = (level) => {
+  const cols = params.getColumsAmount(level);
+  const rows = params.getRowsAmount(level);
+  return Math.ceil(cols * rows * level);
+};
+
+// Função para obter o tamanho dos blocos
+const getBlockSize = (level) => {
+  return params.getBlockSize(
+    params.getRowsAmount(level),
+    params.getColumsAmount(level)
+  );
+};
+
+// Função para mapear o ranking para o nível de dificuldade correspondente
+const getLevelByRanking = (ranking) => {
+  switch (ranking) {
+    case 'Fácil':
+      return 0.1; // Dificuldade fácil
+    case 'Intermediário':
+      return 0.2; // Dificuldade intermediária
+    case 'Difícil':
+      return 0.3; // Dificuldade difícil
+    default:
+      return 0.1; // Padrão para fácil
+  }
+};
 
 export { 
   createMinedBoard,
@@ -90,5 +121,9 @@ export {
   wonGame,
   showMines,
   invertFlag,
-  flagsUsed
+  flagsUsed,
+  spreadMines,
+  getMineCount,
+  getBlockSize,
+  getLevelByRanking
 };
