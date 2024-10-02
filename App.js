@@ -4,8 +4,9 @@ import { NavigationContainer } from '@react-navigation/native';
 import { Provider as PaperProvider, DefaultTheme } from 'react-native-paper';
 import { GameProvider } from './src/context/GameContext';
 
-import InitialScreen from './src/components/InitialScreen';
-import GameScreen from './src/components/GameScreen';
+import InitialScreen from './src/screens/InitialScreen';
+import GameScreen from './src/screens/CasualGameScreen';
+import CompetitiveGameScreen from './src/screens/CompetitiveGameScreen'; 
 
 const theme = {
   ...DefaultTheme,
@@ -25,8 +26,9 @@ const App = () => {
       <GameProvider>
         <NavigationContainer>
           <Stack.Navigator initialRouteName="Home" screenOptions={{ headerShown: false }}>
-            <Stack.Screen name="Home" component={InitialScreen} />
-            <Stack.Screen name="Game" component={GameScreen} />
+            <Stack.Screen name="Home" component={InitialScreen} />  
+            <Stack.Screen name="Game" component={GameScreen} />  
+            <Stack.Screen name="CompetitiveGame" component={CompetitiveGameScreen} />  
           </Stack.Navigator>
         </NavigationContainer>
       </GameProvider>

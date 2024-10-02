@@ -14,15 +14,13 @@ const GameOverDialog = React.memo(({ isVisible, onCancel, onNewGame, onExit, isW
             <Button
               mode="contained"
               style={[styles.button, styles.newGameButton]}
-              onPress={onNewGame}
-            >
+              onPress={onNewGame}>
               Novo Jogo
             </Button>
             <Button
               mode="contained"
               style={[styles.button, styles.exitButton]}
-              onPress={onExit}
-            >
+              onPress={onExit}>
               Sair
             </Button>
           </View>

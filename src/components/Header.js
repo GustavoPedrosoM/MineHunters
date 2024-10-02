@@ -5,6 +5,7 @@ import { BlurView } from '@react-native-community/blur';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import Flag from './Flag';
 import Timer from './Timer';
+import LinearGradient from 'react-native-linear-gradient';
 
 const Header = React.memo(({ flagsLeft, onNewGame, onExit, onFlagPress, timerRef }) => {
   const [menuVisible, setMenuVisible] = useState(false);
@@ -30,6 +31,7 @@ const Header = React.memo(({ flagsLeft, onNewGame, onExit, onFlagPress, timerRef
   };
 
   return (
+    <LinearGradient colors={['#72a34d', '#527a33']} >
     <View style={styles.container}>
       <View style={styles.flagContainer}>
         <TouchableOpacity style={styles.flagButton} onPress={onFlagPress}>
@@ -40,23 +42,17 @@ const Header = React.memo(({ flagsLeft, onNewGame, onExit, onFlagPress, timerRef
       <View style={styles.timerContainer}>
         <Timer ref={timerRef} style={styles.timer} />
       </View>
+      
       <TouchableOpacity onPress={openMenu} style={styles.iconButton}>
         <Icon
           name="pause-circle"
-          size={35}
-          color="#000" 
+          size={45}
+          color="white"
         />
       </TouchableOpacity>
       <Portal>
-        {menuVisible && (
-          <>
-            <BlurView
-              style={StyleSheet.absoluteFill}
-              blurType="light"
-              blurAmount={10}
-              reducedTransparencyFallbackColor="white"
-            />
             <Dialog visible={menuVisible} onDismiss={closeMenu} style={styles.dialogContainer}>
+            <LinearGradient colors={['#2f3640', '#222']} style={styles.menu}>
               <Dialog.Title style={styles.dialogTitle}>Menu</Dialog.Title>
               <Dialog.Content>
                 <View style={styles.buttonContainer}>
@@ -71,25 +67,20 @@ const Header = React.memo(({ flagsLeft, onNewGame, onExit, onFlagPress, timerRef
               <Dialog.Actions>
                 <Button onPress={closeMenu}>Cancelar</Button>
               </Dialog.Actions>
+              </LinearGradient>
             </Dialog>
-          </>
-        )}
       </Portal>
     </View>
+    </LinearGradient>
+    
   );
 });
 
 const styles = StyleSheet.create({
   container: {
-    flexDirection: 'row',
-    backgroundColor: '#A0522D',
-    alignItems: 'center',
+    flexDirection: 'row', 
     justifyContent: 'space-between',
-    paddingHorizontal: 15,
-    paddingVertical: 10,
-    borderBottomLeftRadius: 20, 
-    borderBottomRightRadius: 20,
-    elevation: 15, 
+    padding: 5,
   },
   flagContainer: {
     flexDirection: 'row',
@@ -101,7 +92,7 @@ const styles = StyleSheet.create({
   flagsLeft: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: 'black',
+    color: 'white',
   },
   iconButton: {
     padding: 5,
@@ -119,7 +110,11 @@ const styles = StyleSheet.create({
     marginLeft: 5,
   },
   dialogContainer: {
-    backgroundColor: '#222',
+    backgroundColor: 'transparent',
+    shadowColor: 'transparent',
+  },
+  menu: {
+    borderRadius: 20,
   },
   dialogTitle: {
     color: '#ffda79',

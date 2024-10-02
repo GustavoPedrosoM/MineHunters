@@ -1,4 +1,3 @@
-// src/components/Field.js
 import React from 'react';
 import { View, StyleSheet, Text, TouchableWithoutFeedback } from 'react-native';
 import Mine from './Mine';
@@ -47,19 +46,19 @@ const styles = StyleSheet.create({
     elevation: 15,
   },
   regular: {
-    backgroundColor: '#A0522D',
-    borderTopColor: '#F4A460',
-    borderLeftColor: '#F4A460', 
-    borderRightColor: '#8B4513',
-    borderBottomColor: '#8B4513',
+    backgroundColor: '#74b341',
+    borderTopColor: '#87c954',
+    borderLeftColor: '#87c954', 
+    borderRightColor: '#4f6b17',
+    borderBottomColor: '#405c0d',
     borderRadius: 10,
   },
   opened: {
-    backgroundColor: '#DEB887',
+    backgroundColor: '#70581a',
     alignItems: 'center',
     justifyContent: 'center',
     borderRadius: 5,
-    borderColor: '#F5DEB3',
+    borderColor: '#5c4511',
   },
   label: {
     fontWeight: 'bold',

@@ -1,4 +1,3 @@
-// src/components/MineField.js
 import React, { useCallback } from 'react';
 import { View, StyleSheet } from 'react-native';
 import Field from './Field';

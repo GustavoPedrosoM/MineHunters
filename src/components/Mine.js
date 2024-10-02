@@ -9,8 +9,8 @@ const Mine = React.memo(({ blockSize }) => {
     <View style={[styles.container, { width: blockSize, height: blockSize }]}>
       <Icon
         name="bomb"
-        size={iconSize} // Ajuste o tamanho do ícone com base no tamanho do bloco
-        color="black" // Cor do ícone
+        size={iconSize} 
+        color="black" 
       />
     </View>
   );

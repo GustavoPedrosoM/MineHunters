@@ -1,4 +1,4 @@
-import React, { forwardRef, useImperativeHandle, useState } from 'react';
+import React, { forwardRef, useImperativeHandle, useState, useEffect } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
@@ -28,7 +28,18 @@ const Timer = forwardRef((_props, ref) => {
       }
       setTime(0);
     },
+    getTime() {
+      return time;
+    }
   }));
+
+  useEffect(() => {
+    return () => {
+      if (timerId) {
+        clearInterval(timerId);
+      }
+    };
+  }, [timerId]);
 
   const formatTime = (time) => {
     const minutes = Math.floor(time / 60);
@@ -38,7 +49,7 @@ const Timer = forwardRef((_props, ref) => {
 
   return (
     <View style={styles.container}>
-      <Icon name="timer" size={24} color="white" style={styles.icon} />
+      <Icon name="timer" size={24} color="#527a33" style={styles.icon} />
       <Text style={styles.timerText}>{formatTime(time)}</Text>
     </View>
   );
@@ -49,7 +60,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: 'black', 
+    backgroundColor: 'white', 
     padding: 10,
     borderRadius: 5,
   },
@@ -58,7 +69,8 @@ const styles = StyleSheet.create({
   },
   timerText: {
     fontSize: 24,
-    color: 'white',
+    color: '#527a33',
+    fontWeight: '900',
   },
 });
 
