@@ -1,14 +1,19 @@
+// src/context/GameContext.js
+
 import React, { createContext, useReducer } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {
   createMinedBoard,
   cloneBoard,
   openField,
+  openInitialArea,
   hadExplosion,
   wonGame,
   showMines,
   invertFlag,
   spreadMines,
+  getMineCount,
+  findSafePosition,
 } from '../functions';
 import params from '../params';
 
@@ -28,13 +33,6 @@ const initialState = {
   mode: 'competitivo',
   ranking: 'Fácil',
   victoriesCount: 0,
-  firstMove: true,
-};
-
-const minesAmount = (level) => {
-  const cols = params.getColumsAmount(level);
-  const rows = params.getRowsAmount(level);
-  return Math.ceil(cols * rows * level);
 };
 
 const gameReducer = (state, action) => {
@@ -48,55 +46,72 @@ const gameReducer = (state, action) => {
     case 'NEW_GAME':
       const cols = params.getColumsAmount(state.level);
       const rows = params.getRowsAmount(state.level);
+      const mines = getMineCount(state.level);
+
+      // Criar o tabuleiro vazio
+      let newBoard = createMinedBoard(rows, cols, 0);
+
+      // Encontrar uma posição segura para iniciar
+      const safePosition = findSafePosition(newBoard);
+
+      // Definir a profundidade desejada para a área inicial
+      const initialAreaDepth = 2.3;
+
+      // Determinar as posições da área inicial
+      const initialPositions = [];
+      if (safePosition) {
+        openInitialArea(
+          newBoard,
+          safePosition.row,
+          safePosition.column,
+          initialAreaDepth,
+          {},
+          initialPositions
+        );
+      }
+
+      // Fechar os campos abertos (iremos reabri-los depois)
+      initialPositions.forEach((pos) => {
+        const field = newBoard[pos.row][pos.column];
+        field.opened = false;
+      });
+
+      // Espalhar as minas excluindo as posições da área inicial
+      spreadMines(newBoard, mines, initialPositions);
+
+      // Agora, abrir novamente a área inicial (com o nearMines atualizado)
+      if (safePosition) {
+        openInitialArea(
+          newBoard,
+          safePosition.row,
+          safePosition.column,
+          initialAreaDepth,
+          {},
+          []
+        );
+      }
+
       return {
         ...state,
-        board: createMinedBoard(rows, cols, 0),
+        board: newBoard,
         won: false,
         lost: false,
-        gameStarted: false,
+        gameStarted: true,
         gameOverVisible: false,
         isWin: false,
-        firstMove: true,
       };
 
     case 'OPEN_FIELD':
       if (state.lost || state.won) return state;
 
-      const newBoard = cloneBoard(state.board);
+      const newBoardOpen = cloneBoard(state.board);
+      openField(newBoardOpen, action.row, action.column);
 
-      if (state.firstMove) {
-        const cols = params.getColumsAmount(state.level);
-        const rows = params.getRowsAmount(state.level);
-        const mines = minesAmount(state.level);
-
-        spreadMines(newBoard, mines, action.row, action.column);
-        openField(newBoard, action.row, action.column);
-
-        const lost = hadExplosion(newBoard);
-        const won = wonGame(newBoard);
-
-        if (lost) {
-          showMines(newBoard);
-        }
-
-        return {
-          ...state,
-          board: newBoard,
-          firstMove: false,
-          gameStarted: true,
-          lost,
-          won,
-          gameOverVisible: lost || won,
-          isWin: won,
-        };
-      }
-
-      openField(newBoard, action.row, action.column);
-      const lost = hadExplosion(newBoard);
-      const won = wonGame(newBoard);
+      const lost = hadExplosion(newBoardOpen);
+      const won = wonGame(newBoardOpen);
 
       if (lost) {
-        showMines(newBoard);
+        showMines(newBoardOpen);
       }
 
       let newVictoriesCount = state.victoriesCount;
@@ -110,12 +125,16 @@ const gameReducer = (state, action) => {
           newRanking = 'Intermediário';
           newLevel = 0.2;
           newVictoriesCount = 0;
+        } else if (newRanking === 'Intermediário' && newVictoriesCount >= 5) {
+          newRanking = 'Difícil';
+          newLevel = 0.3;
+          newVictoriesCount = 0;
         }
       }
 
       return {
         ...state,
-        board: newBoard,
+        board: newBoardOpen,
         lost,
         won,
         gameStarted: true,
@@ -204,7 +223,9 @@ export const GameProvider = ({ children }) => {
   };
 
   return (
-    <GameContext.Provider value={{ state, dispatch, saveBestTime, loadBestTime }}>
+    <GameContext.Provider
+      value={{ state, dispatch, saveBestTime, loadBestTime }}
+    >
       {children}
     </GameContext.Provider>
   );

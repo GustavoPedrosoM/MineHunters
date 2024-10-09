@@ -4,9 +4,10 @@ import { GameContext } from '../context/GameContext';
 import { Portal, Dialog, Button } from 'react-native-paper';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import MineField from '../components/MineField';
-import GameOverDialog from '../components/GameOverDialog';
+import GameOverDialog from '../components/gameOverDialog';
 import { flagsUsed, getMineCount, getBlockSize, getLevelByRanking } from '../functions';
 import params from '../params'; 
+import LinearGradient from 'react-native-linear-gradient';
 
 const CompetitiveGameScreen = ({ navigation }) => {
   const { state, dispatch } = useContext(GameContext);
@@ -77,7 +78,6 @@ const CompetitiveGameScreen = ({ navigation }) => {
               <Text style={styles.flagsText}>= {flagsLeft}</Text>
             </View>
             <Text style={styles.levelText}>{state.ranking} - {state.victoriesCount}v</Text>
-            <Text style={styles.victoryText}></Text>
             <TouchableOpacity onPress={handlePause} style={styles.iconButton}>
               <Icon name="pause-circle" size={45} color="white" />
             </TouchableOpacity>
@@ -103,17 +103,29 @@ const CompetitiveGameScreen = ({ navigation }) => {
 
         {/* Menu de pausa */}
         <Portal>
-          <Dialog visible={pauseVisible} onDismiss={closePauseMenu}>
-            <Dialog.Title>Pausado</Dialog.Title>
-            <Dialog.Content>
-              <Button mode="contained" onPress={closePauseMenu} style={styles.resumeButton}>
-                Continuar Jogo
-              </Button>
-              <Button mode="contained" onPress={handleExit} style={styles.exitButton}>
-                Voltar ao Menu Principal
-              </Button>
-            </Dialog.Content>
-          </Dialog>
+        <Dialog visible={pauseVisible} onDismiss={closePauseMenu} style={styles.dialogContainer}>
+            <LinearGradient colors={['#2f3640', '#222']} style={styles.menu}>
+              <Dialog.Title style={styles.containerTitle}>Pausado</Dialog.Title>
+              <Dialog.Content>
+                <View style={styles.buttonContainer}>
+                <TouchableOpacity onPress={closePauseMenu}>
+                    <LinearGradient
+                      colors={['#72a34d', '#527a33']}
+                      style={styles.button}>
+                      <Text style={styles.textButtonMenu}>Continuar Jogo</Text>
+                    </LinearGradient>
+                  </TouchableOpacity>
+                  <TouchableOpacity onPress={handleExit}>
+                    <LinearGradient
+                      colors={['#e55039', '#b33939']}
+                      style={styles.button}>
+                      <Text style={styles.textButtonMenu}>Menu principal</Text>
+                    </LinearGradient>
+                  </TouchableOpacity>
+                </View>
+              </Dialog.Content>
+              </LinearGradient>
+            </Dialog>
         </Portal>
       </View>
     </ImageBackground>
@@ -141,8 +153,7 @@ const styles = StyleSheet.create({
     fontSize: 22,
     fontWeight: '900',
     color: 'white',
-    paddingHorizontal: 50,
-    marginLeft: 10,
+    
   },
   flagsContainer: {
     flexDirection: 'row',
@@ -155,19 +166,42 @@ const styles = StyleSheet.create({
     fontWeight: '900',
   },
   boardContainer: {
-    flex: 9,
+    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
   },
-  iconButton: {},
-  resumeButton: {
-    marginVertical: 10,
-    backgroundColor: '#3498db',
+  menu: {
+    borderRadius: 20,
+    height: 350,
+    width: 350,
   },
-  exitButton: {
-    marginVertical: 10,
-    backgroundColor: '#e74c3c',
+  buttonContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 50,
   },
+  button: {
+    width: 200,
+    height: 50,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 10,
+    marginTop: 10,
+  },
+  dialogContainer: {
+    backgroundColor: 'transparent',
+    shadowColor: 'transparent',
+    alignItems: 'center',
+  },
+  textButtonMenu: {
+    color: 'white',
+    fontSize: 17,
+    fontWeight: 'bold',
+  },
+  containerTitle: {
+    fontWeight: 'bold',
+    color: 'white',
+  }
 });
 
 export default CompetitiveGameScreen;

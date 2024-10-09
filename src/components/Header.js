@@ -53,19 +53,27 @@ const Header = React.memo(({ flagsLeft, onNewGame, onExit, onFlagPress, timerRef
       <Portal>
             <Dialog visible={menuVisible} onDismiss={closeMenu} style={styles.dialogContainer}>
             <LinearGradient colors={['#2f3640', '#222']} style={styles.menu}>
-              <Dialog.Title style={styles.dialogTitle}>Menu</Dialog.Title>
+              <Dialog.Title style={styles.containerTitle}>Pausado</Dialog.Title>
               <Dialog.Content>
                 <View style={styles.buttonContainer}>
-                  <Button mode="contained" style={[styles.button, styles.newGameButton]} onPress={handleNewGame}>
-                    Novo Jogo
-                  </Button>
-                  <Button mode="contained" style={[styles.button, styles.exitButton]} onPress={handleExit}>
-                    Sair
-                  </Button>
+                <TouchableOpacity onPress={handleNewGame}>
+                    <LinearGradient
+                      colors={['#72a34d', '#527a33']}
+                      style={styles.button}>
+                      <Text style={styles.textButtonMenu}>Novo Jogo</Text>
+                    </LinearGradient>
+                  </TouchableOpacity>
+                  <TouchableOpacity onPress={handleExit}>
+                    <LinearGradient
+                      colors={['#e55039', '#b33939']}
+                      style={styles.button}>
+                      <Text style={styles.textButtonMenu}>Menu principal</Text>
+                    </LinearGradient>
+                  </TouchableOpacity>
                 </View>
               </Dialog.Content>
               <Dialog.Actions>
-                <Button onPress={closeMenu}>Cancelar</Button>
+                <Button style={styles.buttonCancel} onPress={closeMenu}><Text style={styles.textButtonMenu}>Cancelar</Text></Button>
               </Dialog.Actions>
               </LinearGradient>
             </Dialog>
@@ -112,27 +120,37 @@ const styles = StyleSheet.create({
   dialogContainer: {
     backgroundColor: 'transparent',
     shadowColor: 'transparent',
+    alignItems: 'center',
+  },
+  containerTitle: {
+    fontWeight: 'bold',
+    color: 'white',
   },
   menu: {
     borderRadius: 20,
-  },
-  dialogTitle: {
-    color: '#ffda79',
+    height: 350,
+    width: 350,
   },
   buttonContainer: {
-    flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'center',
+    marginTop: 50,
   },
   button: {
+    width: 200,
+    height: 50,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 10,
     marginTop: 10,
-    width: '80%',
   },
-  newGameButton: {
-    backgroundColor: '#49b65d',
+  textButtonMenu: {
+    color: 'white',
+    fontSize: 17,
+    fontWeight: 'bold',
   },
-  exitButton: {
-    backgroundColor: '#F26337',
+  buttonCancel: {
+    marginTop: 15,
   },
 });
 

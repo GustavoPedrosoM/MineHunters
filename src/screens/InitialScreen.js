@@ -1,11 +1,9 @@
-// InitialScreen.js
-
 import React, { useState, useCallback, useContext, useEffect } from 'react';
 import { ImageBackground, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { Button, Dialog, Portal, Text } from 'react-native-paper';
 import LinearGradient from 'react-native-linear-gradient';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import { BlurView } from '@react-native-community/blur'; // Importação do BlurView
+import { BlurView } from '@react-native-community/blur'; 
 
 import { GameContext } from '../context/GameContext';
 
@@ -57,12 +55,10 @@ const InitialScreen = ({ navigation }) => {
     loadRecords();
   }, []); 
 
-  // Variável para controlar quando o BlurView deve ser exibido
   const isDialogVisible = showLevelSelection || showCompetitiveMenu || showRecords;
 
   return (
     <ImageBackground source={require('../assets/images/Telainicial.png')} style={styles.background}>
-      {/* Cabeçalho com gradiente */}
       <LinearGradient colors={['#72a34d', '#527a33']} style={styles.headerContainer}>
         <TouchableOpacity style={styles.iconButton}>
           <Icon name="cog" size={35} color="white" />
@@ -72,9 +68,7 @@ const InitialScreen = ({ navigation }) => {
         </TouchableOpacity>
       </LinearGradient>
 
-      {/* Container principal */}
       <View style={styles.container}>
-        {/* Conteúdo principal */}
         <View style={styles.contentContainer}>
           {/* Botões da tela inicial */}
           <TouchableOpacity onPress={() => setShowLevelSelection(true)}>
@@ -235,13 +229,15 @@ const styles = StyleSheet.create({
 
   // Estilos dos Dialogs
   dialogStyle: {
-    borderRadius: 20,
     backgroundColor: 'transparent',
     shadowColor: 'transparent',
+    alignItems: 'center'
   },
   levelDialog: {
     borderRadius: 20,
     overflow: 'hidden',
+    height: 400,
+    width: 400,
   },
   containerTitle: {
     color: 'white',
@@ -253,6 +249,7 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     alignItems: 'center',
     paddingBottom: 20,
+    marginTop: 50,
   },
 
   // texto do menu de recordes
@@ -260,7 +257,7 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: 'bold',
     padding: 5, 
-    marginTop: 5,
+    marginTop: 40,
     color: 'white'
   },
 

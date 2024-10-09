@@ -1,15 +1,15 @@
-// src/screens/GameScreen.js
+// src/screens/CasualGameScreen.js
 
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { View, StyleSheet, ImageBackground } from 'react-native';
 import { GameContext } from '../context/GameContext';
 import Header from '../components/Header';
 import MineField from '../components/MineField';
-import GameOverDialog from '../components/GameOverDialog';
-import { flagsUsed, getMineCount, getBlockSize  } from '../functions'; // Ajuste o caminho conforme necessário
+import GameOverDialog from '../components/gameOverDialog';
+import { flagsUsed, getMineCount, getBlockSize } from '../functions';
 import params from '../params';
 
-const GameScreen = ({ navigation, route }) => {
+const CasualGameScreen = ({ navigation, route }) => {
   const { state, dispatch, saveBestTime, loadBestTime } = useContext(GameContext);
   const timerRef = useRef();
   const [error, setError] = useState(null);
@@ -19,6 +19,11 @@ const GameScreen = ({ navigation, route }) => {
       dispatch({ type: 'SET_MODE', mode: 'casual' });
       dispatch({ type: 'SET_LEVEL', level: route.params.difficultLevel });
       dispatch({ type: 'NEW_GAME' });
+
+      // Iniciar o timer imediatamente após o jogo começar
+      timerRef.current.reset();
+      timerRef.current.start();
+
       loadBestTime(route.params.difficultLevel).then((time) => {
         dispatch({ type: 'SET_BEST_TIME', level: route.params.difficultLevel, time });
       });
@@ -31,6 +36,8 @@ const GameScreen = ({ navigation, route }) => {
     try {
       dispatch({ type: 'NEW_GAME' });
       timerRef.current.reset();
+      timerRef.current.start(); // Iniciar o timer ao iniciar um novo jogo
+
       loadBestTime(state.level).then((time) => {
         dispatch({ type: 'SET_BEST_TIME', level: state.level, time });
       });
@@ -45,9 +52,7 @@ const GameScreen = ({ navigation, route }) => {
 
   const handleOpenField = (row, column) => {
     try {
-      if (!state.gameStarted) {
-        timerRef.current.start();
-      }
+      // Remover a inicialização do timer daqui
       dispatch({ type: 'OPEN_FIELD', row, column });
     } catch (e) {
       setError(e.message);
@@ -81,22 +86,32 @@ const GameScreen = ({ navigation, route }) => {
   const blockSize = getBlockSize(state.level);
 
   return (
-    <ImageBackground source={require('../assets/images/teladejogo.png')} style={styles.background}>
+    <ImageBackground
+      source={require('../assets/images/teladejogo.png')}
+      style={styles.background}
+    >
       <View style={styles.container}>
         <View style={styles.headerContainer}>
           <Header
             flagsLeft={flagsLeft}
             onNewGame={handleNewGame}
             onExit={() => navigation.navigate('Home')}
-            timerRef={timerRef}/>
+            timerRef={timerRef}
+          />
         </View>
         <View style={styles.boardContainer}>
-          <View style={[styles.board, { width: params.boardSize, height: params.boardSize }]}>
+          <View
+            style={[
+              styles.board,
+              { width: params.boardSize, height: params.boardSize },
+            ]}
+          >
             <MineField
               board={state.board}
               onOpenField={handleOpenField}
               onSelectField={handleSelectField}
-              blockSize={blockSize}/>
+              blockSize={blockSize}
+            />
           </View>
         </View>
         <GameOverDialog
@@ -104,7 +119,8 @@ const GameScreen = ({ navigation, route }) => {
           onCancel={handleCancel}
           onNewGame={handleNewGame}
           onExit={() => navigation.navigate('Home')}
-          isWin={state.isWin}/>
+          isWin={state.isWin}
+        />
       </View>
     </ImageBackground>
   );
@@ -128,4 +144,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default GameScreen;
+export default CasualGameScreen;
