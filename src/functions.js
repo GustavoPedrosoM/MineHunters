@@ -35,7 +35,18 @@ const spreadMines = (board, minesAmount, excludedPositions = []) => {
 
 const createMinedBoard = (rows, columns, minesAmount) => {
   const board = createBoard(rows, columns);
+  spreadMines(board, minesAmount);
   return board;
+};
+
+const calculateNearMines = (board) => {
+  for (let row = 0; row < board.length; row++) {
+    for (let column = 0; column < board[row].length; column++) {
+      const field = board[row][column];
+      field.nearMines = getNeighbors(board, row, column).filter((n) => n.mined)
+        .length;
+    }
+  }
 };
 
 const cloneBoard = (board) =>
@@ -59,46 +70,17 @@ const getNeighbors = (board, row, column) => {
   return neighbors;
 };
 
-const openField = (board, row, column) => {
+const openField = (board, row, column, depth = Infinity) => {
   const field = board[row][column];
   if (!field.opened && !field.flagged) {
     field.opened = true;
-    field.nearMines = getNeighbors(board, row, column).filter((n) => n.mined)
-      .length;
 
-    if (field.nearMines === 0 && !field.mined) {
+    if (field.mined) {
+      field.exploded = true;
+    } else if (field.nearMines === 0 && depth > 0) {
       getNeighbors(board, row, column).forEach((n) =>
-        openField(board, n.row, n.column)
+        openField(board, n.row, n.column, depth - 1)
       );
-    }
-
-    if (field.mined) {
-      field.exploded = true;
-    }
-  }
-};
-
-// Modificada para retornar as posições visitadas
-const openInitialArea = (board, row, column, depth = 2, visited = {}, positions = []) => {
-  const key = `${row},${column}`;
-  if (visited[key]) return;
-  visited[key] = true;
-  positions.push({ row, column });
-
-  const field = board[row][column];
-  if (!field.opened && !field.flagged) {
-    field.opened = true;
-    field.nearMines = getNeighbors(board, row, column).filter((n) => n.mined)
-      .length;
-
-    if (!field.mined && depth > 0) {
-      getNeighbors(board, row, column).forEach((neighbor) => {
-        openInitialArea(board, neighbor.row, neighbor.column, depth - 1, visited, positions);
-      });
-    }
-
-    if (field.mined) {
-      field.exploded = true;
     }
   }
 };
@@ -128,19 +110,11 @@ const flagsUsed = (board) =>
   fields(board).filter((field) => field.flagged).length;
 
 const findSafePosition = (board) => {
-  for (let row = 0; row < board.length; row++) {
-    for (let column = 0; column < board[row].length; column++) {
-      const field = board[row][column];
-      if (!field.mined) {
-        const nearMines = getNeighbors(board, row, column).filter((n) => n.mined)
-          .length;
-        if (nearMines === 0) {
-          return { row, column };
-        }
-      }
-    }
-  }
-  return null; // Caso não encontre uma posição totalmente segura
+  const rows = board.length;
+  const columns = board[0].length;
+  const row = Math.floor(Math.random() * rows);
+  const column = Math.floor(Math.random() * columns);
+  return { row, column };
 };
 
 const getMineCount = (level) => {
@@ -148,7 +122,7 @@ const getMineCount = (level) => {
   const rows = params.getRowsAmount(level);
 
   if (level === 0.3) {
-    return Math.ceil(cols * rows * 0.15);
+    return Math.ceil(cols * rows * 0.20);
   }
 
   return Math.ceil(cols * rows * level);
@@ -176,9 +150,9 @@ const getLevelByRanking = (ranking) => {
 
 export {
   createMinedBoard,
+  calculateNearMines,
   cloneBoard,
   openField,
-  openInitialArea,
   hadExplosion,
   wonGame,
   showMines,

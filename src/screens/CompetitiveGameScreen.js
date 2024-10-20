@@ -1,132 +1,161 @@
-import React, { useContext, useEffect, useState } from 'react';
-import { View, StyleSheet, ImageBackground, Text, TouchableOpacity } from 'react-native';
+// src/screens/CompetitiveGameScreen.js
+
+import React, { useContext, useEffect, useRef, useState } from 'react';
+import { View, StyleSheet, ImageBackground } from 'react-native';
 import { GameContext } from '../context/GameContext';
-import { Portal, Dialog, Button } from 'react-native-paper';
-import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
+import CompetitiveHeader from '../components/CompetitiveHeader';
 import MineField from '../components/MineField';
-import GameOverDialog from '../components/gameOverDialog';
-import { flagsUsed, getMineCount, getBlockSize, getLevelByRanking } from '../functions';
-import params from '../params'; 
-import LinearGradient from 'react-native-linear-gradient';
+import GameOverDialog from '../components/GameOverDialog';
+import RankingPromotionDialog from '../components/RankingPromotionDialog'; // Importar o novo componente
+import { flagsUsed, getMineCount, getBlockSize } from '../functions';
+import params from '../params';
 
 const CompetitiveGameScreen = ({ navigation }) => {
   const { state, dispatch } = useContext(GameContext);
-  const [error, setError] = useState(null);
-  const [pauseVisible, setPauseVisible] = useState(false);
+  const timerRef = useRef();
+  const [gameStarted, setGameStarted] = useState(false);
 
   useEffect(() => {
     try {
       dispatch({ type: 'SET_MODE', mode: 'competitivo' });
-      const level = getLevelByRanking(state.ranking);
-      dispatch({ type: 'SET_LEVEL', level });
+      dispatch({ type: 'SET_LEVEL', level: state.level });
       dispatch({ type: 'NEW_GAME' });
+
+      setGameStarted(true); // Indica que um novo jogo foi iniciado
     } catch (e) {
-      setError(e.message);
+      console.error('Erro ao iniciar o jogo:', e);
     }
-  }, []);
+  }, [state.ranking]);
+
+  // Inicia o timer apenas se o ranking for 'Especialista' ou 'Rei do Campo Minado'
+  useEffect(() => {
+    if (timerRef.current && gameStarted) {
+      if (state.ranking === 'Especialista' || state.ranking === 'Rei do Campo Minado') {
+        timerRef.current.reset();
+        timerRef.current.start();
+        console.log(`Timer iniciado no ranking ${state.ranking}`);
+      }
+      setGameStarted(false);
+    }
+  }, [timerRef.current, gameStarted]);
+
+  // Parar o timer se o ranking não for 'Especialista' ou 'Rei do Campo Minado'
+  useEffect(() => {
+    if (
+      state.ranking !== 'Especialista' &&
+      state.ranking !== 'Rei do Campo Minado' &&
+      timerRef.current
+    ) {
+      timerRef.current.stop();
+      timerRef.current.reset();
+      console.log('Timer parado e resetado pois o ranking não é Especialista nem Rei do Campo Minado');
+    }
+  }, [state.ranking]);
 
   const handleNewGame = () => {
-    if (state.lost || state.won || !state.gameStarted) {
+    try {
       dispatch({ type: 'NEW_GAME' });
-    }
-  };
 
-  const handleCancel = () => {
-    dispatch({ type: 'TOGGLE_GAME_OVER' });
-  };
-
-  const handleOpenField = (row, column) => {
-    try {
-      dispatch({ type: 'OPEN_FIELD', row, column });
+      setGameStarted(true); // Indica que um novo jogo foi iniciado
     } catch (e) {
-      setError(e.message);
+      console.error('Erro ao iniciar um novo jogo:', e);
     }
   };
 
-  const handleSelectField = (row, column) => {
-    try {
-      dispatch({ type: 'SELECT_FIELD', row, column });
-    } catch (e) {
-      setError(e.message);
+  useEffect(() => {
+    if (state.won || state.lost) {
+      if (timerRef.current) {
+        timerRef.current.stop();
+      }
     }
+  }, [state.won, state.lost]);
+
+  // Função para lidar com o fim do tempo
+  const handleCountdownFinish = () => {
+    if (
+      (state.ranking === 'Especialista' || state.ranking === 'Rei do Campo Minado') &&
+      state.mode === 'competitivo'
+    ) {
+      dispatch({ type: 'GAME_OVER_TIME_UP' });
+    }
+  };
+
+  // Funções para o diálogo de promoção
+  const handleContinue = () => {
+    dispatch({ type: 'HIDE_PROMOTION' });
+    handleNewGame();
+  };
+
+  const handleGoHome = () => {
+    dispatch({ type: 'HIDE_PROMOTION' });
+    navigation.navigate('Home');
   };
 
   const totalMines = getMineCount(state.level);
   const flagsLeft = totalMines - flagsUsed(state.board);
   const blockSize = getBlockSize(state.level);
 
-  const handlePause = () => {
-    setPauseVisible(true);
-  };
+  // Definir o tempo de contagem regressiva com base no ranking
+  const countdownTime =
+    state.ranking === 'Especialista' ? 210 :
+    state.ranking === 'Rei do Campo Minado' ? 180 : null;
 
-  const closePauseMenu = () => {
-    setPauseVisible(false);
-  };
-
-  const handleExit = () => {
-    setPauseVisible(false);
-    navigation.navigate('Home');
-  };
+  // Determinar o número de vitórias necessárias para a promoção anterior
+  const victoriesNeeded =
+    state.previousRanking === 'Fácil' ? 1 :
+    state.previousRanking === 'Intermediário' ? 1 :
+    state.previousRanking === 'Especialista' ? 1 : 0;
 
   return (
-    <ImageBackground source={require('../assets/images/teladejogo.png')} style={styles.background}>
+    <ImageBackground
+      source={require('../assets/images/teladejogo.png')}
+      style={styles.background}
+    >
       <View style={styles.container}>
         <View style={styles.headerContainer}>
-          <View style={styles.infoContainer}>
-            <View style={styles.flagsContainer}>
-              <Icon name="flag" size={30} color="white" />
-              <Text style={styles.flagsText}>= {flagsLeft}</Text>
-            </View>
-            <Text style={styles.levelText}>{state.ranking} - {state.victoriesCount}v</Text>
-            <TouchableOpacity onPress={handlePause} style={styles.iconButton}>
-              <Icon name="pause-circle" size={45} color="white" />
-            </TouchableOpacity>
-          </View>
+          <CompetitiveHeader
+            flagsLeft={flagsLeft}
+            onNewGame={handleNewGame}
+            onExit={() => navigation.navigate('Home')}
+            timerRef={timerRef}
+            countdown={countdownTime}
+            onCountdownFinish={handleCountdownFinish}
+            ranking={state.ranking}
+            victoriesCount={state.victoriesCount}
+            score={state.score} // Passar a pontuação atual
+          />
         </View>
         <View style={styles.boardContainer}>
-          <View style={[styles.board, { width: params.boardSize, height: params.boardSize }]}>
+          <View
+            style={[
+              styles.board,
+              { width: params.boardSize, height: params.boardSize },
+            ]}
+          >
             <MineField
               board={state.board}
-              onOpenField={handleOpenField}
-              onSelectField={handleSelectField}
+              onOpenField={(row, column) => dispatch({ type: 'OPEN_FIELD', row, column })}
+              onSelectField={(row, column) => dispatch({ type: 'SELECT_FIELD', row, column })}
               blockSize={blockSize}
             />
           </View>
         </View>
         <GameOverDialog
           isVisible={state.gameOverVisible}
-          onCancel={handleCancel}
+          onCancel={() => dispatch({ type: 'TOGGLE_GAME_OVER' })}
           onNewGame={handleNewGame}
           onExit={() => navigation.navigate('Home')}
           isWin={state.isWin}
         />
-
-        {/* Menu de pausa */}
-        <Portal>
-        <Dialog visible={pauseVisible} onDismiss={closePauseMenu} style={styles.dialogContainer}>
-            <LinearGradient colors={['#2f3640', '#222']} style={styles.menu}>
-              <Dialog.Title style={styles.containerTitle}>Pausado</Dialog.Title>
-              <Dialog.Content>
-                <View style={styles.buttonContainer}>
-                <TouchableOpacity onPress={closePauseMenu}>
-                    <LinearGradient
-                      colors={['#72a34d', '#527a33']}
-                      style={styles.button}>
-                      <Text style={styles.textButtonMenu}>Continuar Jogo</Text>
-                    </LinearGradient>
-                  </TouchableOpacity>
-                  <TouchableOpacity onPress={handleExit}>
-                    <LinearGradient
-                      colors={['#e55039', '#b33939']}
-                      style={styles.button}>
-                      <Text style={styles.textButtonMenu}>Menu principal</Text>
-                    </LinearGradient>
-                  </TouchableOpacity>
-                </View>
-              </Dialog.Content>
-              </LinearGradient>
-            </Dialog>
-        </Portal>
+        {/* Exibir o diálogo de promoção de ranking */}
+        <RankingPromotionDialog
+          visible={state.promotionVisible}
+          onContinue={handleContinue}
+          onGoHome={handleGoHome}
+          previousRanking={state.previousRanking}
+          newRanking={state.ranking}
+          victoriesNeeded={victoriesNeeded}
+        />
       </View>
     </ImageBackground>
   );
@@ -140,68 +169,14 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   headerContainer: {
-    paddingVertical: 10,
-    paddingHorizontal: 20,
-    backgroundColor: '#557310',
-  },
-  infoContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center'
-  },
-  levelText: {
-    fontSize: 22,
-    fontWeight: '900',
-    color: 'white',
-    
-  },
-  flagsContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  flagsText: {
-    fontSize: 18,
-    color: 'white',
-    marginLeft: 5,
-    fontWeight: '900',
+    flex: 1,
+    justifyContent: 'flex-start',
   },
   boardContainer: {
-    flex: 1,
+    flex: 9,
     justifyContent: 'center',
     alignItems: 'center',
   },
-  menu: {
-    borderRadius: 20,
-    height: 350,
-    width: 350,
-  },
-  buttonContainer: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: 50,
-  },
-  button: {
-    width: 200,
-    height: 50,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderRadius: 10,
-    marginTop: 10,
-  },
-  dialogContainer: {
-    backgroundColor: 'transparent',
-    shadowColor: 'transparent',
-    alignItems: 'center',
-  },
-  textButtonMenu: {
-    color: 'white',
-    fontSize: 17,
-    fontWeight: 'bold',
-  },
-  containerTitle: {
-    fontWeight: 'bold',
-    color: 'white',
-  }
 });
 
 export default CompetitiveGameScreen;

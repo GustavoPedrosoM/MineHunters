@@ -5,14 +5,14 @@ import { View, StyleSheet, ImageBackground } from 'react-native';
 import { GameContext } from '../context/GameContext';
 import Header from '../components/Header';
 import MineField from '../components/MineField';
-import GameOverDialog from '../components/gameOverDialog';
+import GameOverDialog from '../components/GameOverDialog';
 import { flagsUsed, getMineCount, getBlockSize } from '../functions';
 import params from '../params';
 
 const CasualGameScreen = ({ navigation, route }) => {
   const { state, dispatch, saveBestTime, loadBestTime } = useContext(GameContext);
   const timerRef = useRef();
-  const [error, setError] = useState(null);
+  const [gameStarted, setGameStarted] = useState(false);
 
   useEffect(() => {
     try {
@@ -20,63 +20,45 @@ const CasualGameScreen = ({ navigation, route }) => {
       dispatch({ type: 'SET_LEVEL', level: route.params.difficultLevel });
       dispatch({ type: 'NEW_GAME' });
 
-      // Iniciar o timer imediatamente após o jogo começar
-      timerRef.current.reset();
-      timerRef.current.start();
+      setGameStarted(true); // Indica que um novo jogo foi iniciado
 
-      loadBestTime(route.params.difficultLevel).then((time) => {
-        dispatch({ type: 'SET_BEST_TIME', level: route.params.difficultLevel, time });
-      });
+      loadBestTime(route.params.difficultLevel);
     } catch (e) {
-      setError(e.message);
+      console.error('Erro ao iniciar o jogo:', e);
     }
   }, [route.params.difficultLevel]);
+
+  // Inicia o timer quando timerRef.current está disponível e um novo jogo foi iniciado
+  useEffect(() => {
+    if (timerRef.current && gameStarted) {
+      timerRef.current.reset();
+      timerRef.current.start();
+      setGameStarted(false); // Reseta o estado para evitar reiniciar o timer inadvertidamente
+    }
+  }, [timerRef.current, gameStarted]);
 
   const handleNewGame = () => {
     try {
       dispatch({ type: 'NEW_GAME' });
-      timerRef.current.reset();
-      timerRef.current.start(); // Iniciar o timer ao iniciar um novo jogo
 
-      loadBestTime(state.level).then((time) => {
-        dispatch({ type: 'SET_BEST_TIME', level: state.level, time });
-      });
+      setGameStarted(true); // Indica que um novo jogo foi iniciado
+
+      loadBestTime(state.level);
     } catch (e) {
-      setError(e.message);
-    }
-  };
-
-  const handleCancel = () => {
-    dispatch({ type: 'TOGGLE_GAME_OVER' });
-  };
-
-  const handleOpenField = (row, column) => {
-    try {
-      // Remover a inicialização do timer daqui
-      dispatch({ type: 'OPEN_FIELD', row, column });
-    } catch (e) {
-      setError(e.message);
-    }
-  };
-
-  const handleSelectField = (row, column) => {
-    try {
-      dispatch({ type: 'SELECT_FIELD', row, column });
-    } catch (e) {
-      setError(e.message);
+      console.error('Erro ao iniciar um novo jogo:', e);
     }
   };
 
   useEffect(() => {
     if (state.won || state.lost) {
-      const currentTime = timerRef.current.getTime();
-      timerRef.current.stop();
-      if (state.won) {
-        saveBestTime(state.level, currentTime).then(() => {
-          loadBestTime(state.level).then((time) => {
-            dispatch({ type: 'SET_BEST_TIME', level: state.level, time });
-          });
-        });
+      if (timerRef.current) {
+        const currentTime = timerRef.current.getTime();
+        timerRef.current.stop();
+        if (state.won) {
+          saveBestTime(state.level, currentTime);
+        }
+      } else {
+        console.warn('timerRef.current não está definido ao parar o timer');
       }
     }
   }, [state.won, state.lost]);
@@ -108,15 +90,15 @@ const CasualGameScreen = ({ navigation, route }) => {
           >
             <MineField
               board={state.board}
-              onOpenField={handleOpenField}
-              onSelectField={handleSelectField}
+              onOpenField={(row, column) => dispatch({ type: 'OPEN_FIELD', row, column })}
+              onSelectField={(row, column) => dispatch({ type: 'SELECT_FIELD', row, column })}
               blockSize={blockSize}
             />
           </View>
         </View>
         <GameOverDialog
           isVisible={state.gameOverVisible}
-          onCancel={handleCancel}
+          onCancel={() => dispatch({ type: 'TOGGLE_GAME_OVER' })}
           onNewGame={handleNewGame}
           onExit={() => navigation.navigate('Home')}
           isWin={state.isWin}

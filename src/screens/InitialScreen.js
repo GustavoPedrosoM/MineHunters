@@ -1,22 +1,20 @@
+// src/screens/InitialScreen.js
+
 import React, { useState, useCallback, useContext, useEffect } from 'react';
 import { ImageBackground, StyleSheet, TouchableOpacity, View } from 'react-native';
 import { Button, Dialog, Portal, Text } from 'react-native-paper';
 import LinearGradient from 'react-native-linear-gradient';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import { BlurView } from '@react-native-community/blur'; 
+import { BlurView } from '@react-native-community/blur';
 
 import { GameContext } from '../context/GameContext';
+import { formatTime } from '../components/Timer'; // Importar a função formatTime
 
 const InitialScreen = ({ navigation }) => {
-  const { loadBestTime, dispatch } = useContext(GameContext);
+  const { state, loadBestTime, dispatch } = useContext(GameContext);
   const [showLevelSelection, setShowLevelSelection] = useState(false);
   const [showCompetitiveMenu, setShowCompetitiveMenu] = useState(false);
   const [showRecords, setShowRecords] = useState(false);
-  const [records, setRecords] = useState({
-    easy: 'N/A',
-    medium: 'N/A',
-    hard: 'N/A',
-  });
 
   const onLevelSelected = useCallback(
     (level) => {
@@ -43,23 +41,26 @@ const InitialScreen = ({ navigation }) => {
 
   useEffect(() => {
     const loadRecords = async () => {
-      const easy = await loadBestTime(0.1);
-      const medium = await loadBestTime(0.2);
-      const hard = await loadBestTime(0.3);
-      setRecords({
-        easy: easy !== null ? `${easy}s` : 'N/A',
-        medium: medium !== null ? `${medium}s` : 'N/A',
-        hard: hard !== null ? `${hard}s` : 'N/A',
-      });
+      await loadBestTime(0.1);
+      await loadBestTime(0.2);
+      await loadBestTime(0.3);
     };
     loadRecords();
-  }, []); 
+  }, []); // Certifique-se de que o array de dependências está vazio para que isso ocorra apenas uma vez
 
   const isDialogVisible = showLevelSelection || showCompetitiveMenu || showRecords;
 
   return (
-    <ImageBackground source={require('../assets/images/Telainicial.png')} style={styles.background}>
-      <LinearGradient colors={['#72a34d', '#527a33']} style={styles.headerContainer}>
+    <ImageBackground source={require('../assets/images/telainicial2.png')} style={styles.background}>
+      {isDialogVisible && (
+          <BlurView
+            style={styles.blurView}
+            blurType="light"
+            blurAmount={1}
+            reducedTransparencyFallbackColor="white"
+          />
+        )}
+      <LinearGradient colors={['#4bcffa', '#1e90ff']} style={styles.headerContainer}>
         <TouchableOpacity style={styles.iconButton}>
           <Icon name="cog" size={35} color="white" />
         </TouchableOpacity>
@@ -72,26 +73,17 @@ const InitialScreen = ({ navigation }) => {
         <View style={styles.contentContainer}>
           {/* Botões da tela inicial */}
           <TouchableOpacity onPress={() => setShowLevelSelection(true)}>
-            <LinearGradient style={[styles.buttonBase, styles.playButton]} colors={['#D6A2E8', '#8c7ae6']}>
+            <LinearGradient style={[styles.buttonBase, styles.playButton]} colors={['#1e90ff', 'blue']} >
               <Text style={styles.textBase}>MODO CASUAL</Text>
             </LinearGradient>
           </TouchableOpacity>
 
           <TouchableOpacity onPress={startCompetitiveMode}>
-            <LinearGradient style={[styles.buttonBase, styles.competitiveButton]} colors={['#ffbe76', '#f0932b']}>
+            <LinearGradient style={[styles.buttonBase, styles.competitiveButton]}  colors={['#eb4d4b', 'red']}>
               <Text style={styles.textBase}>MODO COMPETITIVO</Text>
             </LinearGradient>
           </TouchableOpacity>
         </View>
-
-        {isDialogVisible && (
-          <BlurView
-            style={styles.blurView}
-            blurType="light" 
-            blurAmount={2}
-            reducedTransparencyFallbackColor="white" 
-          />
-        )}
 
         {/* Dialogs */}
         <Portal>
@@ -102,23 +94,23 @@ const InitialScreen = ({ navigation }) => {
             style={styles.dialogStyle}
           >
             <Dialog.Content style={{ padding: 0 }}>
-              <LinearGradient colors={['#2f3640', '#222']} style={styles.levelDialog}>
+              <LinearGradient colors={['#222', 'black']} style={styles.levelDialog}>
                 <Dialog.Title style={styles.containerTitle}>Selecione o Nível</Dialog.Title>
                 <View style={styles.buttonContainer}>
                   <TouchableOpacity onPress={() => onLevelSelected(0.1)}>
-                    <LinearGradient colors={['#72a34d', '#527a33']} style={[styles.buttonBase, styles.levelButton]}>
+                    <LinearGradient colors={['#4cd137', '#009432']} style={[styles.buttonBase, styles.levelButton]}>
                       <Text style={styles.textBase}>Fácil</Text>
                     </LinearGradient>
                   </TouchableOpacity>
 
                   <TouchableOpacity onPress={() => onLevelSelected(0.2)}>
-                    <LinearGradient colors={['#fa983a', '#e58e26']} style={[styles.buttonBase, styles.levelButton]}>
+                    <LinearGradient colors={['#FFC312', '#F79F1F']} style={[styles.buttonBase, styles.levelButton]}>
                       <Text style={styles.textBase}>Intermediário</Text>
                     </LinearGradient>
                   </TouchableOpacity>
 
                   <TouchableOpacity onPress={() => onLevelSelected(0.3)}>
-                    <LinearGradient colors={['#e55039', '#b33939']} style={[styles.buttonBase, styles.levelButton]}>
+                    <LinearGradient colors={['#eb4d4b', 'red']} style={[styles.buttonBase, styles.levelButton]}>
                       <Text style={styles.textBase}>Difícil</Text>
                     </LinearGradient>
                   </TouchableOpacity>
@@ -134,12 +126,12 @@ const InitialScreen = ({ navigation }) => {
             style={styles.dialogStyle}
           >
             <Dialog.Content style={{ padding: 0 }}>
-              <LinearGradient colors={['#2f3640', '#222']} style={styles.levelDialog}>
+              <LinearGradient colors={['#222', 'black']} style={styles.levelDialog}>
                 <Dialog.Title style={styles.containerTitle}>Modo Competitivo</Dialog.Title>
                 <View style={styles.buttonContainer}>
                   <TouchableOpacity onPress={handleStartCompetitiveGame}>
                     <LinearGradient
-                      colors={['#72a34d', '#527a33']}
+                      colors={['#4cd137', '#009432']}
                       style={[styles.buttonBase, styles.startButton]}
                     >
                       <Text style={styles.textBase}>Iniciar Partida</Text>
@@ -153,19 +145,29 @@ const InitialScreen = ({ navigation }) => {
           {/* Menu de Recordes */}
           <Dialog
             visible={showRecords}
-            onDismiss={() => setShowRecords(false)} style={styles.dialogStyle}>
-            <LinearGradient colors={['#2f3640', '#222']} style={styles.levelDialog}>
+            onDismiss={() => setShowRecords(false)}
+            style={styles.dialogStyle}
+          >
+            <LinearGradient colors={['#222', 'black']} style={styles.levelDialog}>
               <Dialog.Title style={styles.containerTitle}>Recordes do Modo Casual</Dialog.Title>
               <Dialog.Content>
-                <Text style={[styles.textRecords, { color: 'green'}]}>Fácil: {records.easy}</Text>
-                <Text style={[styles.textRecords, { color: 'orange'}]}>Intermediário: {records.medium}</Text>
-                <Text style={[styles.textRecords, { color: 'red'}]}>Difícil: {records.hard}</Text>
+                <Text style={[styles.textRecords, { color: '#009432' }]}>
+                  Fácil: {formatTime(state.bestTimes?.easy)}
+                </Text>
+                <Text style={[styles.textRecords, { color: '#F79F1F' }]}>
+                  Intermediário: {formatTime(state.bestTimes?.medium)}
+                </Text>
+                <Text style={[styles.textRecords, { color: 'red' }]}>
+                  Difícil: {formatTime(state.bestTimes?.hard)}
+                </Text>
               </Dialog.Content>
               <Dialog.Actions>
-                <Button onPress={() => setShowRecords(false)}><Text style={styles.textBase}>OK</Text></Button>
+                <Button onPress={() => setShowRecords(false)}>
+                  <Text style={styles.textBase}>OK</Text>
+                </Button>
               </Dialog.Actions>
             </LinearGradient>
-            </Dialog>
+          </Dialog>
         </Portal>
       </View>
     </ImageBackground>
@@ -175,15 +177,15 @@ const InitialScreen = ({ navigation }) => {
 const styles = StyleSheet.create({
   // Estilos base
   buttonBase: {
-    width: 200,
-    height: 50,
+    width: 230,
+    height: 60,
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: 10,
   },
   textBase: {
-    fontSize: 17,
-    fontWeight: 'bold',
+    fontSize: 18,
+    fontFamily: 'SpicyRice-Regular',
     color: 'white',
   },
 
@@ -207,6 +209,8 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     flexDirection: 'row-reverse',
     alignItems: 'center',
+    borderBottomLeftRadius: 20, 
+    borderBottomRightRadius: 20, 
   },
   iconButton: {
     paddingHorizontal: 15,
@@ -215,10 +219,10 @@ const styles = StyleSheet.create({
 
   // Estilos específicos para botões
   playButton: {
-    marginBottom: 15,
+    marginBottom: 10,
   },
   competitiveButton: {
-    marginBottom: 40,
+    marginBottom: 132,
   },
   levelButton: {
     marginVertical: 5,
@@ -231,17 +235,17 @@ const styles = StyleSheet.create({
   dialogStyle: {
     backgroundColor: 'transparent',
     shadowColor: 'transparent',
-    alignItems: 'center'
+    alignItems: 'center',
   },
   levelDialog: {
     borderRadius: 20,
     overflow: 'hidden',
-    height: 400,
-    width: 400,
+    width: 300,
   },
   containerTitle: {
     color: 'white',
-    fontWeight: 'bold',
+    fontFamily: 'SpicyRice-Regular',
+    textAlign: 'center',
   },
 
   // Container de botões dentro do Dialog
@@ -249,23 +253,24 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     alignItems: 'center',
     paddingBottom: 20,
-    marginTop: 50,
+    marginTop: 10,
+    marginBottom: 15,
   },
 
-  // texto do menu de recordes
+  // Texto do menu de recordes
   textRecords: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    padding: 5, 
-    marginTop: 40,
-    color: 'white'
+    fontSize: 25,
+    fontFamily: 'SpicyRice-Regular',
+    padding: 5,
+    marginTop: 10,
+    color: 'white',
   },
 
   // Estilo para o BlurView
   blurView: {
     ...StyleSheet.absoluteFillObject,
-    zIndex: 1, 
+    zIndex: 1,
   },
 });
 
-export default React.memo(InitialScreen);
+export default InitialScreen;

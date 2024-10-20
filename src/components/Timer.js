@@ -1,55 +1,82 @@
-import React, { forwardRef, useImperativeHandle, useState, useEffect } from 'react';
+// src/components/Timer.js
+
+import React, { forwardRef, useImperativeHandle, useState, useEffect, useRef } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 
-const Timer = forwardRef((_props, ref) => {
-  const [time, setTime] = useState(0);
-  const [timerId, setTimerId] = useState(null);
+export const formatTime = (time) => {
+  if (time === null || time === undefined) return '-';
+  const minutes = Math.floor(time / 60);
+  const seconds = time % 60;
+  return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+};
+
+const Timer = forwardRef(({ countdown = null, onCountdownFinish }, ref) => {
+  const [time, setTime] = useState(countdown !== null ? countdown : 0);
+  const timerIdRef = useRef(null);
 
   useImperativeHandle(ref, () => ({
     start() {
-      if (!timerId) {
-        const id = setInterval(() => {
-          setTime((prevTime) => prevTime + 1);
+      if (!timerIdRef.current) {
+        console.log('Timer iniciado');
+        timerIdRef.current = setInterval(() => {
+          setTime((prevTime) => {
+            if (countdown !== null) {
+              if (prevTime > 0) {
+                return prevTime - 1;
+              } else {
+                clearInterval(timerIdRef.current);
+                timerIdRef.current = null;
+                if (onCountdownFinish) {
+                  onCountdownFinish();
+                }
+                return 0;
+              }
+            } else {
+              return prevTime + 1;
+            }
+          });
         }, 1000);
-        setTimerId(id);
+      } else {
+        console.log('Timer já está rodando');
       }
     },
     stop() {
-      if (timerId) {
-        clearInterval(timerId);
-        setTimerId(null);
+      if (timerIdRef.current) {
+        clearInterval(timerIdRef.current);
+        timerIdRef.current = null;
+        console.log('Timer parado');
+      } else {
+        console.log('Timer já está parado');
       }
     },
     reset() {
-      if (timerId) {
-        clearInterval(timerId);
-        setTimerId(null);
+      if (timerIdRef.current) {
+        clearInterval(timerIdRef.current);
+        timerIdRef.current = null;
+        console.log('Timer resetado e parado');
+      } else {
+        console.log('Timer resetado');
       }
-      setTime(0);
+      setTime(countdown !== null ? countdown : 0);
     },
     getTime() {
       return time;
-    }
+    },
   }));
 
   useEffect(() => {
     return () => {
-      if (timerId) {
-        clearInterval(timerId);
+      if (timerIdRef.current) {
+        clearInterval(timerIdRef.current);
+        timerIdRef.current = null;
       }
     };
-  }, [timerId]);
-
-  const formatTime = (time) => {
-    const minutes = Math.floor(time / 60);
-    const seconds = time % 60;
-    return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
-  };
+  }, []);
 
   return (
     <View style={styles.container}>
-      <Icon name="timer" size={24} color="#527a33" style={styles.icon} />
+      <Icon name="timer" size={30} color="#527a33" style={styles.icon} />
       <Text style={styles.timerText}>{formatTime(time)}</Text>
     </View>
   );
@@ -59,18 +86,16 @@ const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: 'white', 
-    padding: 10,
-    borderRadius: 5,
-  },
-  icon: {
-    marginRight: 5,
   },
   timerText: {
-    fontSize: 24,
-    color: '#527a33',
-    fontWeight: '900',
+    fontSize: 25,
+    color: 'white',
+    fontWeight: 'bold',
+    marginLeft: 5,
+  },
+  icon: {
+    color: 'white',
+    marginRight: 5,
   },
 });
 
