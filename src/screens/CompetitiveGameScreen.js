@@ -108,7 +108,7 @@ const CompetitiveGameScreen = ({ navigation }) => {
 
   return (
     <ImageBackground
-      source={require('../assets/images/teladejogo.png')}
+      source={require('../assets/images/teladejogo4.png')}
       style={styles.background}
     >
       <View style={styles.container}>

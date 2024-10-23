@@ -36,7 +36,7 @@ const RankingPromotionDialog = ({
   return (
     <Portal>
       <Dialog visible={visible} dismissable={false} style={styles.dialogContainer}>
-        <LinearGradient colors={['black', 'black']} style={[styles.dialogContainer2, { width: width * 0.9 }]}>
+        <LinearGradient colors={['#222', 'black']} style={[styles.dialogContainer2, { width: width * 0.9 }]}>
           <Dialog.Content style={[styles.dialogContent, { width: width * 0.85 }]}>
             <Text style={styles.text}>
               Você alcançou {victoriesNeeded} de {victoriesNeeded} vitórias para subir de ranking. Parabéns!
@@ -55,13 +55,13 @@ const RankingPromotionDialog = ({
             </Text>
 
             <TouchableOpacity onPress={onContinue} style={styles.button1}>
-              <LinearGradient colors={['#72a34d', '#527a33']} style={styles.buttonGradient}>
+              <LinearGradient colors={['#4cd137', '#009432']} style={styles.buttonGradient}>
                 <Text style={styles.buttonText}>Continuar Jogando</Text>
               </LinearGradient>
             </TouchableOpacity>
 
             <TouchableOpacity onPress={onGoHome} style={styles.button2}>
-              <LinearGradient colors={['#e55039', '#b33939']} style={styles.buttonGradient}>
+              <LinearGradient colors={['#eb4d4b', 'red']} style={styles.buttonGradient}>
                 <Text style={styles.buttonText}>Menu Principal</Text>
               </LinearGradient>
             </TouchableOpacity>

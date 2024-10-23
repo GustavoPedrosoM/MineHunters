@@ -1,42 +1,107 @@
 // src/screens/InitialScreen.js
 
 import React, { useState, useCallback, useContext, useEffect } from 'react';
-import { ImageBackground, StyleSheet, TouchableOpacity, View } from 'react-native';
-import { Button, Dialog, Portal, Text } from 'react-native-paper';
+import {
+  ImageBackground,
+  StyleSheet,
+  TouchableOpacity,
+  View,
+  Dimensions,
+} from 'react-native';
+import { Button, Dialog, Portal, Text, DefaultTheme } from 'react-native-paper'; // Importar DefaultTheme
 import LinearGradient from 'react-native-linear-gradient';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
-import { BlurView } from '@react-native-community/blur';
+import * as Animatable from 'react-native-animatable'; // Importar o react-native-animatable
 
 import { GameContext } from '../context/GameContext';
 import { formatTime } from '../components/Timer'; // Importar a função formatTime
+
+// Criar o tema personalizado
+const customTheme = {
+  ...DefaultTheme,
+  colors: {
+    ...DefaultTheme.colors,
+    backdrop: 'transparent', // Tornar o backdrop transparente
+  },
+};
 
 const InitialScreen = ({ navigation }) => {
   const { state, loadBestTime, dispatch } = useContext(GameContext);
   const [showLevelSelection, setShowLevelSelection] = useState(false);
   const [showCompetitiveMenu, setShowCompetitiveMenu] = useState(false);
   const [showRecords, setShowRecords] = useState(false);
+  const [showModeSelection, setShowModeSelection] = useState(false);
+
+  // Estados para controlar as animações
+  const [animationType, setAnimationType] = useState('lightSpeedOut');
 
   const onLevelSelected = useCallback(
     (level) => {
-      setShowLevelSelection(false);
-      dispatch({ type: 'SET_MODE', mode: 'casual' });
-      navigation.navigate('Game', { difficultLevel: level });
+      setAnimationType('lightSpeedOut');
+      setTimeout(() => {
+        setShowLevelSelection(false);
+        dispatch({ type: 'SET_MODE', mode: 'casual' });
+        navigation.navigate('Game', { difficultLevel: level });
+      }, 500);
     },
     [dispatch, navigation]
   );
 
   const startCompetitiveMode = useCallback(() => {
+    setAnimationType('slideInUp');
     setShowCompetitiveMenu(true);
   }, []);
 
   const handleStartCompetitiveGame = useCallback(() => {
-    dispatch({ type: 'SET_MODE', mode: 'competitivo' });
-    setShowCompetitiveMenu(false);
-    navigation.navigate('CompetitiveGame');
+    setAnimationType('lightSpeedOut');
+    setTimeout(() => {
+      dispatch({ type: 'SET_MODE', mode: 'competitivo' });
+      setShowCompetitiveMenu(false);
+      navigation.navigate('CompetitiveGame');
+    }, 500);
   }, [dispatch, navigation]);
 
-  const cancelCompetitiveMode = useCallback(() => {
-    setShowCompetitiveMenu(false);
+  const closeCompetitiveMenu = useCallback(() => {
+    setAnimationType('lightSpeedOut');
+    setTimeout(() => {
+      setShowCompetitiveMenu(false);
+    }, 500);
+  }, []);
+
+  const closeModeSelection = useCallback(() => {
+    setAnimationType('lightSpeedOut');
+    setTimeout(() => {
+      setShowModeSelection(false);
+    }, 500);
+  }, []);
+
+  const openModeSelection = useCallback(() => {
+    setAnimationType('slideInUp');
+    setShowModeSelection(true);
+  }, []);
+
+  const closeLevelSelection = useCallback(() => {
+    setAnimationType('lightSpeedOut');
+    setTimeout(() => {
+      setShowLevelSelection(false);
+    }, 500);
+  }, []);
+
+  const openLevelSelection = useCallback(() => {
+    setAnimationType('slideInUp');
+    setShowLevelSelection(true);
+  }, []);
+
+  const closeRecords = useCallback(() => {
+    setAnimationType('lightSpeedOut');
+    setTimeout(() => {
+      setShowRecords(false);
+    }, 500);
+  }, []);
+
+  const openRecords = useCallback(() => {
+    setAnimationType('slideInUp');
+    setShowRecords(true);
   }, []);
 
   useEffect(() => {
@@ -46,149 +111,265 @@ const InitialScreen = ({ navigation }) => {
       await loadBestTime(0.3);
     };
     loadRecords();
-  }, []); // Certifique-se de que o array de dependências está vazio para que isso ocorra apenas uma vez
+  }, []);
 
-  const isDialogVisible = showLevelSelection || showCompetitiveMenu || showRecords;
+  const isDialogVisible =
+    showLevelSelection || showCompetitiveMenu || showRecords || showModeSelection;
+
+  // Obter as dimensões da tela
+  const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
   return (
-    <ImageBackground source={require('../assets/images/telainicial2.png')} style={styles.background}>
-      {isDialogVisible && (
-          <BlurView
-            style={styles.blurView}
-            blurType="light"
-            blurAmount={1}
-            reducedTransparencyFallbackColor="white"
-          />
-        )}
-      <LinearGradient colors={['#4bcffa', '#1e90ff']} style={styles.headerContainer}>
+    <ImageBackground
+      source={require('../assets/images/telainicial5.png')}
+      style={styles.background}
+    >
+      <View style={styles.headerContainer}>
         <TouchableOpacity style={styles.iconButton}>
-          <Icon name="cog" size={35} color="white" />
+          <LinearGradient colors={['#f9ca24', '#EE5A24']} style={styles.ConfigIcon}>
+            <Icon name="cog" size={35} color="white" />
+            <Text style={styles.iconsText}>Configurações</Text>
+          </LinearGradient>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.iconButton} onPress={() => setShowRecords(true)}>
-          <Icon name="timer" size={35} color="white" />
+
+        <TouchableOpacity style={styles.iconButton} onPress={openRecords}>
+          <LinearGradient colors={['#f9ca24', '#EE5A24']} style={styles.RecordIcon}>
+            <Icon name="timer" size={35} color="white" />
+            <Text style={styles.iconsText}>Recordes</Text>
+          </LinearGradient>
         </TouchableOpacity>
-      </LinearGradient>
+      </View>
 
       <View style={styles.container}>
         <View style={styles.contentContainer}>
-          {/* Botões da tela inicial */}
-          <TouchableOpacity onPress={() => setShowLevelSelection(true)}>
-            <LinearGradient style={[styles.buttonBase, styles.playButton]} colors={['#1e90ff', 'blue']} >
-              <Text style={styles.textBase}>MODO CASUAL</Text>
-            </LinearGradient>
-          </TouchableOpacity>
-
-          <TouchableOpacity onPress={startCompetitiveMode}>
-            <LinearGradient style={[styles.buttonBase, styles.competitiveButton]}  colors={['#eb4d4b', 'red']}>
-              <Text style={styles.textBase}>MODO COMPETITIVO</Text>
+          {/* Botão Jogar */}
+          <TouchableOpacity onPress={openModeSelection}>
+            <LinearGradient style={styles.playButton} colors={['#f9ca24', '#EE5A24']}>
+              <Text style={styles.textPlayButton}>Iniciar Jogo</Text>
             </LinearGradient>
           </TouchableOpacity>
         </View>
 
-        {/* Dialogs */}
+        {/* Menus com Animações */}
         <Portal>
+          {/* Menu de Seleção de Modo */}
+          {showModeSelection && (
+            <Animatable.View
+              animation={animationType}
+              duration={500}
+              style={styles.animatableContainer}
+            >
+              <Dialog
+                onDismiss={closeModeSelection}
+                visible={showModeSelection}
+                style={styles.dialogStyle}
+                theme={customTheme} // Aplicar o tema personalizado
+              >
+                <Dialog.Content style={{ padding: 0 }}>
+                  <LinearGradient colors={['#222', 'black']} style={styles.levelDialog}>
+                    <Dialog.Title style={styles.containerTitle}>
+                      Selecione o Modo de Jogo
+                    </Dialog.Title>
+                    <View style={styles.buttonContainer}>
+                      <TouchableOpacity
+                        onPress={() => {
+                          closeModeSelection();
+                          setTimeout(() => {
+                            openLevelSelection();
+                          }, 500);
+                        }}
+                      >
+                        <LinearGradient
+                          colors={['#4cd137', '#009432']}
+                          style={[styles.buttonBaseMenu, styles.levelButton]}
+                        >
+                          <Text style={styles.textBase}>Modo Casual</Text>
+                        </LinearGradient>
+                      </TouchableOpacity>
+
+                      <TouchableOpacity
+                        onPress={() => {
+                          closeModeSelection();
+                          setTimeout(() => {
+                            startCompetitiveMode();
+                          }, 500);
+                        }}
+                      >
+                        <LinearGradient
+                          colors={['#eb4d4b', 'red']}
+                          style={[styles.buttonBaseMenu, styles.levelButton]}
+                        >
+                          <Text style={styles.textBase}>Modo Competitivo</Text>
+                        </LinearGradient>
+                      </TouchableOpacity>
+                    </View>
+                  </LinearGradient>
+                </Dialog.Content>
+              </Dialog>
+            </Animatable.View>
+          )}
+
           {/* Seleção de Nível */}
-          <Dialog
-            onDismiss={() => setShowLevelSelection(false)}
-            visible={showLevelSelection}
-            style={styles.dialogStyle}
-          >
-            <Dialog.Content style={{ padding: 0 }}>
-              <LinearGradient colors={['#222', 'black']} style={styles.levelDialog}>
-                <Dialog.Title style={styles.containerTitle}>Selecione o Nível</Dialog.Title>
-                <View style={styles.buttonContainer}>
-                  <TouchableOpacity onPress={() => onLevelSelected(0.1)}>
-                    <LinearGradient colors={['#4cd137', '#009432']} style={[styles.buttonBase, styles.levelButton]}>
-                      <Text style={styles.textBase}>Fácil</Text>
-                    </LinearGradient>
-                  </TouchableOpacity>
+          {showLevelSelection && (
+            <Animatable.View
+              animation={animationType}
+              duration={500}
+              style={styles.animatableContainer}
+            >
+              <Dialog
+                onDismiss={closeLevelSelection}
+                visible={showLevelSelection}
+                style={styles.dialogStyle}
+                theme={customTheme} // Aplicar o tema personalizado
+              >
+                <Dialog.Content style={{ padding: 0 }}>
+                  <LinearGradient colors={['#222', 'black']} style={styles.levelDialog}>
+                    <Dialog.Title style={styles.containerTitle}>Selecione o Nível</Dialog.Title>
+                    <View style={styles.buttonContainer}>
+                      <TouchableOpacity onPress={() => onLevelSelected(0.1)}>
+                        <LinearGradient
+                          colors={['#4cd137', '#009432']}
+                          style={[styles.buttonBaseMenu, styles.levelButton]}
+                        >
+                          <Text style={styles.textBase}>Fácil</Text>
+                        </LinearGradient>
+                      </TouchableOpacity>
 
-                  <TouchableOpacity onPress={() => onLevelSelected(0.2)}>
-                    <LinearGradient colors={['#FFC312', '#F79F1F']} style={[styles.buttonBase, styles.levelButton]}>
-                      <Text style={styles.textBase}>Intermediário</Text>
-                    </LinearGradient>
-                  </TouchableOpacity>
+                      <TouchableOpacity onPress={() => onLevelSelected(0.2)}>
+                        <LinearGradient
+                          colors={['#FFC312', '#F79F1F']}
+                          style={[styles.buttonBaseMenu, styles.levelButton]}
+                        >
+                          <Text style={styles.textBase}>Intermediário</Text>
+                        </LinearGradient>
+                      </TouchableOpacity>
 
-                  <TouchableOpacity onPress={() => onLevelSelected(0.3)}>
-                    <LinearGradient colors={['#eb4d4b', 'red']} style={[styles.buttonBase, styles.levelButton]}>
-                      <Text style={styles.textBase}>Difícil</Text>
-                    </LinearGradient>
-                  </TouchableOpacity>
-                </View>
-              </LinearGradient>
-            </Dialog.Content>
-          </Dialog>
+                      <TouchableOpacity onPress={() => onLevelSelected(0.3)}>
+                        <LinearGradient
+                          colors={['#eb4d4b', 'red']}
+                          style={[styles.buttonBaseMenu, styles.levelButton]}
+                        >
+                          <Text style={styles.textBase}>Difícil</Text>
+                        </LinearGradient>
+                      </TouchableOpacity>
+                    </View>
+                  </LinearGradient>
+                </Dialog.Content>
+              </Dialog>
+            </Animatable.View>
+          )}
 
           {/* Menu Competitivo */}
-          <Dialog
-            onDismiss={cancelCompetitiveMode}
-            visible={showCompetitiveMenu}
-            style={styles.dialogStyle}
-          >
-            <Dialog.Content style={{ padding: 0 }}>
-              <LinearGradient colors={['#222', 'black']} style={styles.levelDialog}>
-                <Dialog.Title style={styles.containerTitle}>Modo Competitivo</Dialog.Title>
-                <View style={styles.buttonContainer}>
-                  <TouchableOpacity onPress={handleStartCompetitiveGame}>
-                    <LinearGradient
-                      colors={['#4cd137', '#009432']}
-                      style={[styles.buttonBase, styles.startButton]}
-                    >
-                      <Text style={styles.textBase}>Iniciar Partida</Text>
-                    </LinearGradient>
-                  </TouchableOpacity>
-                </View>
-              </LinearGradient>
-            </Dialog.Content>
-          </Dialog>
+          {showCompetitiveMenu && (
+            <Animatable.View
+              animation={animationType}
+              duration={500}
+              style={styles.animatableContainer}
+            >
+              <Dialog
+                onDismiss={closeCompetitiveMenu}
+                visible={showCompetitiveMenu}
+                style={styles.dialogStyle}
+                theme={customTheme} // Aplicar o tema personalizado
+              >
+                <Dialog.Content style={{ padding: 0 }}>
+                  <LinearGradient colors={['#222', 'black']} style={styles.levelDialog}>
+                    <Dialog.Title style={styles.containerTitle}>Modo Competitivo</Dialog.Title>
+                    <View style={styles.buttonContainer}>
+                      <TouchableOpacity onPress={handleStartCompetitiveGame}>
+                        <LinearGradient
+                          colors={['#4cd137', '#009432']}
+                          style={[styles.buttonBaseMenu, styles.startButton]}
+                        >
+                          <Text style={styles.textBase}>Iniciar Partida</Text>
+                        </LinearGradient>
+                      </TouchableOpacity>
+                    </View>
+                  </LinearGradient>
+                </Dialog.Content>
+              </Dialog>
+            </Animatable.View>
+          )}
 
           {/* Menu de Recordes */}
-          <Dialog
-            visible={showRecords}
-            onDismiss={() => setShowRecords(false)}
-            style={styles.dialogStyle}
-          >
-            <LinearGradient colors={['#222', 'black']} style={styles.levelDialog}>
-              <Dialog.Title style={styles.containerTitle}>Recordes do Modo Casual</Dialog.Title>
-              <Dialog.Content>
-                <Text style={[styles.textRecords, { color: '#009432' }]}>
-                  Fácil: {formatTime(state.bestTimes?.easy)}
-                </Text>
-                <Text style={[styles.textRecords, { color: '#F79F1F' }]}>
-                  Intermediário: {formatTime(state.bestTimes?.medium)}
-                </Text>
-                <Text style={[styles.textRecords, { color: 'red' }]}>
-                  Difícil: {formatTime(state.bestTimes?.hard)}
-                </Text>
-              </Dialog.Content>
-              <Dialog.Actions>
-                <Button onPress={() => setShowRecords(false)}>
-                  <Text style={styles.textBase}>OK</Text>
-                </Button>
-              </Dialog.Actions>
-            </LinearGradient>
-          </Dialog>
+          {showRecords && (
+            <Animatable.View
+              animation={animationType}
+              duration={500}
+              style={styles.animatableContainer}
+            >
+              <Dialog
+                visible={showRecords}
+                onDismiss={closeRecords}
+                style={styles.dialogStyle}
+                theme={customTheme} // Aplicar o tema personalizado
+              >
+                <LinearGradient colors={['#222', 'black']} style={styles.levelDialog}>
+                  <Dialog.Title style={styles.containerTitle}>
+                    Recordes do Modo Casual
+                  </Dialog.Title>
+                  <Dialog.Content>
+                    <Text style={[styles.textRecords, { color: '#009432' }]}>
+                      Fácil: {formatTime(state.bestTimes?.easy)}
+                    </Text>
+                    <Text style={[styles.textRecords, { color: '#F79F1F' }]}>
+                      Intermediário: {formatTime(state.bestTimes?.medium)}
+                    </Text>
+                    <Text style={[styles.textRecords, { color: 'red' }]}>
+                      Difícil: {formatTime(state.bestTimes?.hard)}
+                    </Text>
+                  </Dialog.Content>
+                  <Dialog.Actions>
+                    <Button onPress={closeRecords}>
+                      <Text style={styles.OkButton}>OK</Text>
+                    </Button>
+                  </Dialog.Actions>
+                </LinearGradient>
+              </Dialog>
+            </Animatable.View>
+          )}
         </Portal>
       </View>
     </ImageBackground>
   );
 };
 
+
+// Obter as dimensões da tela
+const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
+
 const styles = StyleSheet.create({
   // Estilos base
-  buttonBase: {
-    width: 230,
-    height: 60,
+  playButton: {
+    width: screenWidth * 0.5,
+    height: screenHeight * 0.07,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 10,
+    marginBottom: screenHeight * 0.23,
+  },
+  buttonBaseMenu: {
+    width: screenWidth * 0.5,
+    height: screenHeight * 0.07,
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: 10,
   },
-  textBase: {
-    fontSize: 18,
+  textPlayButton: {
+    fontSize: screenWidth * 0.06,
     fontFamily: 'SpicyRice-Regular',
     color: 'white',
   },
-
+  textBase: {
+    fontSize: screenWidth * 0.05,
+    fontFamily: 'SpicyRice-Regular',
+    color: 'white',
+  },
+  OkButton: {
+    fontSize: screenWidth * 0.045,
+    fontFamily: 'SpicyRice-Regular',
+    color: 'white',
+  },
   // Tela inicial
   background: {
     flex: 1,
@@ -205,32 +386,47 @@ const styles = StyleSheet.create({
   // Cabeçalho
   headerContainer: {
     width: '100%',
-    height: 55,
+    height: screenHeight * 0.1,
+    flexDirection: 'row',
     justifyContent: 'space-between',
-    flexDirection: 'row-reverse',
     alignItems: 'center',
-    borderBottomLeftRadius: 20, 
-    borderBottomRightRadius: 20, 
+    paddingHorizontal: screenWidth * 0.05,
+    marginTop: screenHeight * 0.005,
+  },
+  ConfigIcon: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderRadius: 10,
+    paddingHorizontal: screenWidth * 0.02,
+    height: screenHeight * 0.06,
+    backgroundColor: 'transparent',
+  },
+  RecordIcon: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderRadius: 10,
+    paddingHorizontal: screenWidth * 0.02,
+    height: screenHeight * 0.06,
+    backgroundColor: 'transparent',
+  },
+  iconsText: {
+    color: 'white',
+    marginLeft: screenWidth * 0.01,
+    fontFamily: 'SpicyRice-Regular',
+    fontSize: screenWidth * 0.04,
   },
   iconButton: {
-    paddingHorizontal: 15,
-    paddingVertical: 5,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 
   // Estilos específicos para botões
-  playButton: {
-    marginBottom: 10,
-  },
-  competitiveButton: {
-    marginBottom: 132,
-  },
   levelButton: {
-    marginVertical: 5,
+    marginVertical: screenHeight * 0.01,
   },
   startButton: {
-    marginVertical: 5,
+    marginVertical: screenHeight * 0.01,
   },
-
   // Estilos dos Dialogs
   dialogStyle: {
     backgroundColor: 'transparent',
@@ -240,36 +436,40 @@ const styles = StyleSheet.create({
   levelDialog: {
     borderRadius: 20,
     overflow: 'hidden',
-    width: 300,
+    width: screenWidth * 0.8,
   },
   containerTitle: {
     color: 'white',
     fontFamily: 'SpicyRice-Regular',
     textAlign: 'center',
+    fontSize: screenWidth * 0.05,
+    marginTop: screenHeight * 0.02,
   },
 
   // Container de botões dentro do Dialog
   buttonContainer: {
     flexDirection: 'column',
     alignItems: 'center',
-    paddingBottom: 20,
-    marginTop: 10,
-    marginBottom: 15,
+    paddingBottom: screenHeight * 0.02,
+    marginTop: screenHeight * 0.01,
+    marginBottom: screenHeight * 0.02,
   },
 
   // Texto do menu de recordes
   textRecords: {
-    fontSize: 25,
+    fontSize: screenWidth * 0.045,
     fontFamily: 'SpicyRice-Regular',
-    padding: 5,
-    marginTop: 10,
+    padding: screenWidth * 0.02,
+    marginTop: screenHeight * 0.01,
     color: 'white',
   },
 
-  // Estilo para o BlurView
-  blurView: {
-    ...StyleSheet.absoluteFillObject,
-    zIndex: 1,
+  // Estilo para o contêiner animável
+  animatableContainer: {
+    flex: 1,
+    backgroundColor: 'trasnparent',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 });
 

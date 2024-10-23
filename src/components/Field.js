@@ -16,10 +16,11 @@ const Field = React.memo((props) => {
 
   let color = null;
   if (nearMines > 0) {
-    if (nearMines === 1) color = '#0984e3';
-    else if (nearMines === 2) color = '#00b894';
-    else if (nearMines > 2 && nearMines < 6) color = '#ff9f43';
-    else if (nearMines >= 6) color = '#EA2027';
+    if (nearMines === 1) color = '#14c9c3';
+    else if (nearMines === 2) color = '#12c70c';
+    else if (nearMines === 3) color = '#ffc505';
+    else if (nearMines === 4) color = '#a115d4';
+    else if (nearMines >= 5) color = '#cf0000';
   }
 
   return (
@@ -46,26 +47,26 @@ const styles = StyleSheet.create({
     elevation: 15,
   },
   regular: {
-    backgroundColor: '#74b341',
-    borderTopColor: '#87c954',
-    borderLeftColor: '#87c954', 
-    borderRightColor: '#4f6b17',
-    borderBottomColor: '#405c0d',
+    backgroundColor: '#108500',
+    borderTopColor: '#2aa11a',
+    borderLeftColor: '#2aa11a', 
+    borderRightColor: '#0c6600',
+    borderBottomColor: '#0c6600',
     borderRadius: 10,
   },
   opened: {
-    backgroundColor: '#70581a',
+    backgroundColor: '#402b01',
     alignItems: 'center',
     justifyContent: 'center',
     borderRadius: 5,
-    borderColor: '#5c4511',
+    borderColor: '#2e1e00',
   },
   label: {
     fontWeight: 'bold',
   },
   exploded: {
-    backgroundColor: '#e74c3c',
-    borderColor: '#c0392b',
+    backgroundColor: '#d90000',
+    borderColor: '#b50000',
   },
   flagContainer: {
     justifyContent: 'center',

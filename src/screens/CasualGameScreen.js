@@ -1,7 +1,16 @@
 // src/screens/CasualGameScreen.js
 
 import React, { useContext, useEffect, useRef, useState } from 'react';
-import { View, StyleSheet, ImageBackground } from 'react-native';
+import {
+  View,
+  StyleSheet,
+  ImageBackground,
+  Dimensions, TouchableOpacity
+} from 'react-native';
+import { Button, Portal, Dialog, Text } from 'react-native-paper';
+import { BlurView } from '@react-native-community/blur';
+import LinearGradient from 'react-native-linear-gradient';
+
 import { GameContext } from '../context/GameContext';
 import Header from '../components/Header';
 import MineField from '../components/MineField';
@@ -9,10 +18,23 @@ import GameOverDialog from '../components/GameOverDialog';
 import { flagsUsed, getMineCount, getBlockSize } from '../functions';
 import params from '../params';
 
+const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
+
 const CasualGameScreen = ({ navigation, route }) => {
   const { state, dispatch, saveBestTime, loadBestTime } = useContext(GameContext);
   const timerRef = useRef();
   const [gameStarted, setGameStarted] = useState(false);
+  const [menuVisible, setMenuVisible] = useState(false);
+
+  const openMenu = () => {
+    timerRef.current.stop();
+    setMenuVisible(true);
+  };
+
+  const closeMenu = () => {
+    timerRef.current.start();
+    setMenuVisible(false);
+  };
 
   useEffect(() => {
     try {
@@ -20,7 +42,7 @@ const CasualGameScreen = ({ navigation, route }) => {
       dispatch({ type: 'SET_LEVEL', level: route.params.difficultLevel });
       dispatch({ type: 'NEW_GAME' });
 
-      setGameStarted(true); // Indica que um novo jogo foi iniciado
+      setGameStarted(true);
 
       loadBestTime(route.params.difficultLevel);
     } catch (e) {
@@ -28,12 +50,11 @@ const CasualGameScreen = ({ navigation, route }) => {
     }
   }, [route.params.difficultLevel]);
 
-  // Inicia o timer quando timerRef.current está disponível e um novo jogo foi iniciado
   useEffect(() => {
     if (timerRef.current && gameStarted) {
       timerRef.current.reset();
       timerRef.current.start();
-      setGameStarted(false); // Reseta o estado para evitar reiniciar o timer inadvertidamente
+      setGameStarted(false);
     }
   }, [timerRef.current, gameStarted]);
 
@@ -41,7 +62,7 @@ const CasualGameScreen = ({ navigation, route }) => {
     try {
       dispatch({ type: 'NEW_GAME' });
 
-      setGameStarted(true); // Indica que um novo jogo foi iniciado
+      setGameStarted(true);
 
       loadBestTime(state.level);
     } catch (e) {
@@ -69,7 +90,7 @@ const CasualGameScreen = ({ navigation, route }) => {
 
   return (
     <ImageBackground
-      source={require('../assets/images/teladejogo.png')}
+      source={require('../assets/images/teladejogo4.png')}
       style={styles.background}
     >
       <View style={styles.container}>
@@ -79,6 +100,7 @@ const CasualGameScreen = ({ navigation, route }) => {
             onNewGame={handleNewGame}
             onExit={() => navigation.navigate('Home')}
             timerRef={timerRef}
+            onPause={openMenu}
           />
         </View>
         <View style={styles.boardContainer}>
@@ -104,6 +126,37 @@ const CasualGameScreen = ({ navigation, route }) => {
           isWin={state.isWin}
         />
       </View>
+      {menuVisible && (
+        <>
+          <BlurView
+            style={StyleSheet.absoluteFill}
+            blurType="light"
+            blurAmount={1}
+            reducedTransparencyFallbackColor="white"
+          />
+          <Portal>
+            <Dialog visible={menuVisible} onDismiss={closeMenu} style={styles.dialogContainer}>
+              <LinearGradient colors={['#222', 'black']} style={styles.menu}>
+                <Dialog.Title style={styles.containerTitle}>Pausado</Dialog.Title>
+                <Dialog.Content>
+                  <View style={styles.buttonContainer}>
+                    <TouchableOpacity onPress={handleNewGame}>
+                      <LinearGradient colors={['#4cd137', '#009432']} style={styles.button}>
+                        <Text style={styles.textButtonMenu}>Novo Jogo</Text>
+                      </LinearGradient>
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={() => navigation.navigate('Home')}>
+                      <LinearGradient colors={['#eb4d4b', 'red']} style={styles.button}>
+                        <Text style={styles.textButtonMenu}>Menu Principal</Text>
+                      </LinearGradient>
+                    </TouchableOpacity>
+                  </View>
+                </Dialog.Content>
+              </LinearGradient>
+            </Dialog>
+          </Portal>
+        </>
+      )}
     </ImageBackground>
   );
 };
@@ -115,14 +168,45 @@ const styles = StyleSheet.create({
   background: {
     flex: 1,
   },
-  headerContainer: {
-    flex: 1,
-    justifyContent: 'flex-start',
-  },
   boardContainer: {
-    flex: 9,
+    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  // Estilos adicionados
+  dialogContainer: {
+    backgroundColor: 'transparent',
+    shadowColor: 'transparent',
+    alignItems: 'center',
+  },
+  menu: {
+    borderRadius: 20,
+    width: screenWidth * 0.8,
+    height: screenHeight * 0.35,
+    alignSelf: 'center',
+  },
+  containerTitle: {
+    color: 'white',
+    fontSize: screenWidth * 0.05,
+    fontFamily: 'SpicyRice-Regular',
+  },
+  buttonContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: screenHeight * 0.02,
+  },
+  button: {
+    width: screenWidth * 0.6,
+    height: screenHeight * 0.07,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 10,
+    marginTop: screenHeight * 0.015,
+  },
+  textButtonMenu: {
+    color: 'white',
+    fontSize: screenWidth * 0.045,
+    fontFamily: 'SpicyRice-Regular',
   },
 });
 

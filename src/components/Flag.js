@@ -9,7 +9,7 @@ const Flag = React.memo(({ blockSize }) => {
     <View style={[styles.container, { width: blockSize, height: blockSize }]}>
       <Icon
         name="flag-variant"
-        size={iconSize ? 40 : 16} 
+        size={iconSize ? 28 : 16} 
         color="white" 
       />
     </View>

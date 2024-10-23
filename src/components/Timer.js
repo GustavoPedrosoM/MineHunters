@@ -76,7 +76,7 @@ const Timer = forwardRef(({ countdown = null, onCountdownFinish }, ref) => {
 
   return (
     <View style={styles.container}>
-      <Icon name="timer" size={30} color="#527a33" style={styles.icon} />
+      <Icon name="timer" size={30} color="white" style={styles.icon} />
       <Text style={styles.timerText}>{formatTime(time)}</Text>
     </View>
   );
@@ -90,7 +90,7 @@ const styles = StyleSheet.create({
   timerText: {
     fontSize: 25,
     color: 'white',
-    fontWeight: 'bold',
+    fontFamily: 'SpicyRice-Regular',
     marginLeft: 5,
   },
   icon: {
