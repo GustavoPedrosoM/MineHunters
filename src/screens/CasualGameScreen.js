@@ -14,7 +14,7 @@ import LinearGradient from 'react-native-linear-gradient';
 import { GameContext } from '../context/GameContext';
 import Header from '../components/Header';
 import MineField from '../components/MineField';
-import GameOverDialog from '../components/GameOverDialog';
+import GameOverDialog from '../components/gameOverDialog';
 import { flagsUsed, getMineCount, getBlockSize } from '../functions';
 import params from '../params';
 

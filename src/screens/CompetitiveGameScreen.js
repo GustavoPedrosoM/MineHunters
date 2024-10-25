@@ -5,7 +5,7 @@ import { View, StyleSheet, ImageBackground } from 'react-native';
 import { GameContext } from '../context/GameContext';
 import CompetitiveHeader from '../components/CompetitiveHeader';
 import MineField from '../components/MineField';
-import GameOverDialog from '../components/GameOverDialog';
+import GameOverDialog from '../components/gameOverDialog';
 import RankingPromotionDialog from '../components/RankingPromotionDialog'; // Importar o novo componente
 import { flagsUsed, getMineCount, getBlockSize } from '../functions';
 import params from '../params';

@@ -1,13 +1,15 @@
 import React from 'react';
-import { View, StyleSheet, TouchableOpacity } from 'react-native';
-import { Button, Portal, Dialog, Text } from 'react-native-paper';
+import { View, StyleSheet, TouchableOpacity, Dimensions } from 'react-native';
+import { Portal, Dialog, Text } from 'react-native-paper';
 import LinearGradient from 'react-native-linear-gradient';
+
+const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
 const GameOverDialog = React.memo(({ isVisible, onCancel, onNewGame, onExit, isWin }) => {
   return (
     <Portal>
       <Dialog visible={isVisible} onDismiss={onCancel} style={styles.container}>
-            <LinearGradient colors={['#2f3640', '#222']} style={styles.menu}>
+            <LinearGradient colors={['#222', 'black']} style={styles.menu}>
               <Dialog.Title style={styles.containerTitle}>
                 {isWin ? 'Parabéns, Você Venceu!' : 'Derrota, Tente Novamente!'} 
               </Dialog.Title>
@@ -15,23 +17,20 @@ const GameOverDialog = React.memo(({ isVisible, onCancel, onNewGame, onExit, isW
                 <View style={styles.buttonContainer}>
                 <TouchableOpacity onPress={onNewGame}>
                     <LinearGradient
-                      colors={['#72a34d', '#527a33']}
+                      colors={['#4cd137', '#009432']}
                       style={styles.button}>
                       <Text style={styles.textButtonMenu}>Novo Jogo</Text>
                     </LinearGradient>
                   </TouchableOpacity>
                   <TouchableOpacity onPress={onExit}>
                     <LinearGradient
-                      colors={['#e55039', '#b33939']}
+                      colors={['#eb4d4b', 'red']}
                       style={styles.button}>
                       <Text style={styles.textButtonMenu}>Menu principal</Text>
                     </LinearGradient>
                   </TouchableOpacity>
                 </View>
               </Dialog.Content>
-              <Dialog.Actions>
-          <Button onPress={onCancel}><Text style={styles.buttonCancel}>Cancelar</Text></Button>
-        </Dialog.Actions>
               </LinearGradient>
       </Dialog>
     </Portal>
@@ -46,38 +45,33 @@ const styles = StyleSheet.create({
   },
   menu: {
     borderRadius: 20, 
-    overflow: 'hidden',
-    height: 400,
-    width: 400,
+    width: screenWidth * 0.8,
+    height: screenHeight * 0.35,
   },
   containerTitle: {
     color: 'white',
-    fontWeight: 'bold',
+    fontFamily: 'SpicyRice-Regular',
+    fontSize: screenWidth * 0.055,
   },
   buttonContainer: {
     flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'center',
     paddingBottom: 20,
-    marginTop: 50,
+    marginTop: 23,
   },
   button: {
-    width: 200,
-    height: 50,
+    width: screenWidth * 0.6,
+    height: screenHeight * 0.07,
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: 10,
-    marginTop: 20,
+    marginTop: 15,
   },
   textButtonMenu: {
     color: 'white',
-    fontWeight: 'bold',
-    fontSize: 17,
-  },
-  buttonCancel: {
-    fontSize: 20,
-    color: 'white',
-    fontWeight: 'bold',
+    fontFamily: 'SpicyRice-Regular',
+    fontSize: screenWidth * 0.045,
   },
 });
 

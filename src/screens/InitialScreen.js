@@ -156,7 +156,7 @@ const InitialScreen = ({ navigation }) => {
           {showModeSelection && (
             <Animatable.View
               animation={animationType}
-              duration={500}
+              duration={350}
               style={styles.animatableContainer}
             >
               <Dialog
@@ -213,7 +213,7 @@ const InitialScreen = ({ navigation }) => {
           {showLevelSelection && (
             <Animatable.View
               animation={animationType}
-              duration={500}
+              duration={350}
               style={styles.animatableContainer}
             >
               <Dialog
@@ -263,7 +263,7 @@ const InitialScreen = ({ navigation }) => {
           {showCompetitiveMenu && (
             <Animatable.View
               animation={animationType}
-              duration={500}
+              duration={350}
               style={styles.animatableContainer}
             >
               <Dialog
@@ -295,7 +295,7 @@ const InitialScreen = ({ navigation }) => {
           {showRecords && (
             <Animatable.View
               animation={animationType}
-              duration={500}
+              duration={350}
               style={styles.animatableContainer}
             >
               <Dialog
