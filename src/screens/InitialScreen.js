@@ -1,6 +1,6 @@
 // src/screens/InitialScreen.js
 
-import React, { useState, useCallback, useContext, useEffect } from 'react';
+import React, { useState, useCallback, useContext, useEffect, useRef } from 'react';
 import {
   ImageBackground,
   StyleSheet,
@@ -12,6 +12,7 @@ import { Button, Dialog, Portal, Text, DefaultTheme } from 'react-native-paper';
 import LinearGradient from 'react-native-linear-gradient';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import * as Animatable from 'react-native-animatable'; // Importar o react-native-animatable
+import Sound from 'react-native-sound'; // Importar o react-native-sound
 
 import { GameContext } from '../context/GameContext';
 import { formatTime } from '../components/Timer'; // Importar a função formatTime
@@ -35,8 +36,44 @@ const InitialScreen = ({ navigation }) => {
   // Estados para controlar as animações
   const [animationType, setAnimationType] = useState('lightSpeedOut');
 
+  // Referência para o som do botão
+  const buttonPressSoundRef = useRef(null);
+
+  useEffect(() => {
+    // Inicializar o som quando o componente for montado
+    Sound.setCategory('Playback');
+    buttonPressSoundRef.current = new Sound(
+      require('../assets/sounds/button-press2.mp3'),
+      (error) => {
+        if (error) {
+          console.log('Erro ao carregar o som', error);
+        }
+      }
+    );
+
+    // Liberar o som quando o componente for desmontado
+    return () => {
+      if (buttonPressSoundRef.current) {
+        buttonPressSoundRef.current.release();
+      }
+    };
+  }, []);
+
+  const playButtonSound = () => {
+    if (buttonPressSoundRef.current) {
+      buttonPressSoundRef.current.stop(() => {
+        buttonPressSoundRef.current.play((success) => {
+          if (!success) {
+            console.log('Erro ao tocar o som');
+          }
+        });
+      });
+    }
+  };
+
   const onLevelSelected = useCallback(
     (level) => {
+      playButtonSound(); // Tocar som ao selecionar o nível
       setAnimationType('lightSpeedOut');
       setTimeout(() => {
         setShowLevelSelection(false);
@@ -48,11 +85,13 @@ const InitialScreen = ({ navigation }) => {
   );
 
   const startCompetitiveMode = useCallback(() => {
+    playButtonSound(); // Tocar som ao iniciar o modo competitivo
     setAnimationType('slideInUp');
     setShowCompetitiveMenu(true);
   }, []);
 
   const handleStartCompetitiveGame = useCallback(() => {
+    playButtonSound(); // Tocar som ao iniciar o jogo competitivo
     setAnimationType('lightSpeedOut');
     setTimeout(() => {
       dispatch({ type: 'SET_MODE', mode: 'competitivo' });
@@ -62,6 +101,7 @@ const InitialScreen = ({ navigation }) => {
   }, [dispatch, navigation]);
 
   const closeCompetitiveMenu = useCallback(() => {
+    playButtonSound(); // Tocar som ao fechar o menu competitivo
     setAnimationType('lightSpeedOut');
     setTimeout(() => {
       setShowCompetitiveMenu(false);
@@ -69,6 +109,7 @@ const InitialScreen = ({ navigation }) => {
   }, []);
 
   const closeModeSelection = useCallback(() => {
+    playButtonSound(); // Tocar som ao fechar a seleção de modo
     setAnimationType('lightSpeedOut');
     setTimeout(() => {
       setShowModeSelection(false);
@@ -76,11 +117,13 @@ const InitialScreen = ({ navigation }) => {
   }, []);
 
   const openModeSelection = useCallback(() => {
+    playButtonSound(); // Tocar som ao abrir a seleção de modo
     setAnimationType('slideInUp');
     setShowModeSelection(true);
   }, []);
 
   const closeLevelSelection = useCallback(() => {
+    playButtonSound(); // Tocar som ao fechar a seleção de nível
     setAnimationType('lightSpeedOut');
     setTimeout(() => {
       setShowLevelSelection(false);
@@ -88,11 +131,13 @@ const InitialScreen = ({ navigation }) => {
   }, []);
 
   const openLevelSelection = useCallback(() => {
+    playButtonSound(); // Tocar som ao abrir a seleção de nível
     setAnimationType('slideInUp');
     setShowLevelSelection(true);
   }, []);
 
   const closeRecords = useCallback(() => {
+    playButtonSound(); // Tocar som ao fechar o menu de recordes
     setAnimationType('lightSpeedOut');
     setTimeout(() => {
       setShowRecords(false);
@@ -100,6 +145,7 @@ const InitialScreen = ({ navigation }) => {
   }, []);
 
   const openRecords = useCallback(() => {
+    playButtonSound(); // Tocar som ao abrir o menu de recordes
     setAnimationType('slideInUp');
     setShowRecords(true);
   }, []);
@@ -125,14 +171,26 @@ const InitialScreen = ({ navigation }) => {
       style={styles.background}
     >
       <View style={styles.headerContainer}>
-        <TouchableOpacity style={styles.iconButton}>
+        <TouchableOpacity
+          style={styles.iconButton}
+          onPress={() => {
+            playButtonSound(); // Tocar som ao pressionar o botão
+            // Ação do botão de configurações (adicione aqui se houver)
+          }}
+        >
           <LinearGradient colors={['#f9ca24', '#EE5A24']} style={styles.ConfigIcon}>
             <Icon name="cog" size={35} color="white" />
             <Text style={styles.iconsText}>Configurações</Text>
           </LinearGradient>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.iconButton} onPress={openRecords}>
+        <TouchableOpacity
+          style={styles.iconButton}
+          onPress={() => {
+            playButtonSound(); // Tocar som ao pressionar o botão
+            openRecords();
+          }}
+        >
           <LinearGradient colors={['#f9ca24', '#EE5A24']} style={styles.RecordIcon}>
             <Icon name="timer" size={35} color="white" />
             <Text style={styles.iconsText}>Recordes</Text>
@@ -143,7 +201,12 @@ const InitialScreen = ({ navigation }) => {
       <View style={styles.container}>
         <View style={styles.contentContainer}>
           {/* Botão Jogar */}
-          <TouchableOpacity onPress={openModeSelection}>
+          <TouchableOpacity
+            onPress={() => {
+              playButtonSound(); // Tocar som ao pressionar o botão
+              openModeSelection();
+            }}
+          >
             <LinearGradient style={styles.playButton} colors={['#f9ca24', '#EE5A24']}>
               <Text style={styles.textPlayButton}>Iniciar Jogo</Text>
             </LinearGradient>
@@ -173,6 +236,7 @@ const InitialScreen = ({ navigation }) => {
                     <View style={styles.buttonContainer}>
                       <TouchableOpacity
                         onPress={() => {
+                          playButtonSound(); // Tocar som ao pressionar o botão
                           closeModeSelection();
                           setTimeout(() => {
                             openLevelSelection();
@@ -189,6 +253,7 @@ const InitialScreen = ({ navigation }) => {
 
                       <TouchableOpacity
                         onPress={() => {
+                          playButtonSound(); // Tocar som ao pressionar o botão
                           closeModeSelection();
                           setTimeout(() => {
                             startCompetitiveMode();
@@ -226,7 +291,12 @@ const InitialScreen = ({ navigation }) => {
                   <LinearGradient colors={['#222', 'black']} style={styles.levelDialog}>
                     <Dialog.Title style={styles.containerTitle}>Selecione o Nível</Dialog.Title>
                     <View style={styles.buttonContainer}>
-                      <TouchableOpacity onPress={() => onLevelSelected(0.1)}>
+                      <TouchableOpacity
+                        onPress={() => {
+                          playButtonSound(); // Tocar som ao pressionar o botão
+                          onLevelSelected(0.1);
+                        }}
+                      >
                         <LinearGradient
                           colors={['#4cd137', '#009432']}
                           style={[styles.buttonBaseMenu, styles.levelButton]}
@@ -235,7 +305,12 @@ const InitialScreen = ({ navigation }) => {
                         </LinearGradient>
                       </TouchableOpacity>
 
-                      <TouchableOpacity onPress={() => onLevelSelected(0.2)}>
+                      <TouchableOpacity
+                        onPress={() => {
+                          playButtonSound(); // Tocar som ao pressionar o botão
+                          onLevelSelected(0.2);
+                        }}
+                      >
                         <LinearGradient
                           colors={['#FFC312', '#F79F1F']}
                           style={[styles.buttonBaseMenu, styles.levelButton]}
@@ -244,7 +319,12 @@ const InitialScreen = ({ navigation }) => {
                         </LinearGradient>
                       </TouchableOpacity>
 
-                      <TouchableOpacity onPress={() => onLevelSelected(0.3)}>
+                      <TouchableOpacity
+                        onPress={() => {
+                          playButtonSound(); // Tocar som ao pressionar o botão
+                          onLevelSelected(0.3);
+                        }}
+                      >
                         <LinearGradient
                           colors={['#eb4d4b', 'red']}
                           style={[styles.buttonBaseMenu, styles.levelButton]}
@@ -276,7 +356,12 @@ const InitialScreen = ({ navigation }) => {
                   <LinearGradient colors={['#222', 'black']} style={styles.levelDialog}>
                     <Dialog.Title style={styles.containerTitle}>Modo Competitivo</Dialog.Title>
                     <View style={styles.buttonContainer}>
-                      <TouchableOpacity onPress={handleStartCompetitiveGame}>
+                      <TouchableOpacity
+                        onPress={() => {
+                          playButtonSound(); // Tocar som ao pressionar o botão
+                          handleStartCompetitiveGame();
+                        }}
+                      >
                         <LinearGradient
                           colors={['#4cd137', '#009432']}
                           style={[styles.buttonBaseMenu, styles.startButton]}
@@ -320,7 +405,12 @@ const InitialScreen = ({ navigation }) => {
                     </Text>
                   </Dialog.Content>
                   <Dialog.Actions>
-                    <Button onPress={closeRecords}>
+                    <Button
+                      onPress={() => {
+                        playButtonSound(); // Tocar som ao pressionar o botão
+                        closeRecords();
+                      }}
+                    >
                       <Text style={styles.OkButton}>OK</Text>
                     </Button>
                   </Dialog.Actions>
@@ -333,7 +423,6 @@ const InitialScreen = ({ navigation }) => {
     </ImageBackground>
   );
 };
-
 
 // Obter as dimensões da tela
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
@@ -467,7 +556,7 @@ const styles = StyleSheet.create({
   // Estilo para o contêiner animável
   animatableContainer: {
     flex: 1,
-    backgroundColor: 'trasnparent',
+    backgroundColor: 'transparent',
     justifyContent: 'center',
     alignItems: 'center',
   },
