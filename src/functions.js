@@ -118,14 +118,18 @@ const findSafePosition = (board) => {
 };
 
 const getMineCount = (level) => {
-  const cols = params.getColumsAmount(level);
-  const rows = params.getRowsAmount(level);
-
-  if (level === 0.3) {
-    return Math.ceil(cols * rows * 0.20);
+  if (level === 0.1) {
+    return 5; // Nível Iniciante
+  } else if (level === 0.2) {
+    return 12; // Nível Amador
+  } else if (level === 0.3) {
+    return 20; // Nível Difícil
+  } else {
+    // Cálculo padrão caso seja necessário
+    const cols = params.getColumsAmount(level);
+    const rows = params.getRowsAmount(level);
+    return Math.ceil(cols * rows * level);
   }
-
-  return Math.ceil(cols * rows * level);
 };
 
 const getBlockSize = (level) => {
@@ -137,14 +141,15 @@ const getBlockSize = (level) => {
 
 const getLevelByRanking = (ranking) => {
   switch (ranking) {
-    case 'Fácil':
-      return 0.1; // Dificuldade fácil
-    case 'Intermediário':
-      return 0.2; // Dificuldade intermediária
-    case 'Difícil':
-      return 0.3; // Dificuldade difícil
+    case 'Iniciante':
+      return 0.1; // Dificuldade Iniciante
+    case 'Amador':
+      return 0.2; // Dificuldade Amador
+    case 'Especialista':
+    case 'Rei do Campo Minado':
+      return 0.3; // Dificuldade Difícil
     default:
-      return 0.1; // Padrão para fácil
+      return 0.1; // Padrão para Iniciante
   }
 };
 

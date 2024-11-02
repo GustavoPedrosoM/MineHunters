@@ -1,0 +1,130 @@
+# Query: MoneyMind
+
+170 results - 11 files
+
+android\settings.gradle:
+  1: rootProject.name = 'MineHunters'
+
+android\app\build.gradle:
+  78:     namespace "com.minehunters"
+  80:         applicationId "com.minehunters"
+
+android\app\src\main\java\com\moneymind\MainActivity.kt:
+   1: package com.minehunters
+  14:   override fun getMainComponentName(): String = "MineHunters"
+
+android\app\src\main\java\com\moneymind\MainApplication.kt:
+  1: package com.minehunters
+
+ios\Podfile:
+  28: target 'MineHunters' do
+  42:   target 'MineHuntersTests' do
+
+ios\MineHunters\AppDelegate.mm:
+  9:   self.moduleName = @"MineHunters";
+
+ios\MineHunters\Info.plist:
+  8: 	<string>MineHunters</string>
+
+ios\MineHunters\LaunchScreen.storyboard:
+  19:                             <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="MineHunters" textAlignment="center" lineBreakMode="middleTruncation" baselineAdjustment="alignBaselines" minimumFontSize="18" translatesAutoresizingMaskIntoConstraints="NO" id="GJd-Yh-RWb">
+
+ios\MineHunters.xcodeproj\project.pbxproj:
+   10: 		00E356F31AD99517003FC87E /* MineHuntersTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 00E356F21AD99517003FC87E /* MoneyMindTests.m */; };
+   11: 		0C80B921A6F3F58F76C31292 /* libPods-MineHunters.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5DCACB8F33CDC322A6C60F78 /* libPods-MineHunters.a */; };
+   15: 		7699B88040F8A987B510C191 /* libPods-MineHunters-MineHuntersTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 19F6CBCC0A4E27FBF8BF4A61 /* libPods-MineHunters-MoneyMindTests.a */; };
+   25: 			remoteInfo = MineHunters;
+   30: 		00E356EE1AD99517003FC87E /* MineHuntersTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = MoneyMindTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+   32: 		00E356F21AD99517003FC87E /* MineHuntersTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MoneyMindTests.m; sourceTree = "<group>"; };
+   33: 		13B07F961A680F5B00A75B9A /* MineHunters.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MineHunters.app; sourceTree = BUILT_PRODUCTS_DIR; };
+   34: 		13B07FAF1A68108700A75B9A /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AppDelegate.h; path = MineHunters/AppDelegate.h; sourceTree = "<group>"; };
+   35: 		13B07FB01A68108700A75B9A /* AppDelegate.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = AppDelegate.mm; path = MineHunters/AppDelegate.mm; sourceTree = "<group>"; };
+   36: 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = MineHunters/Images.xcassets; sourceTree = "<group>"; };
+   37: 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = MineHunters/Info.plist; sourceTree = "<group>"; };
+   38: 		13B07FB71A68108700A75B9A /* main.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = main.m; path = MineHunters/main.m; sourceTree = "<group>"; };
+   39: 		19F6CBCC0A4E27FBF8BF4A61 /* libPods-MineHunters-MineHuntersTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-MineHunters-MoneyMindTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+   40: 		3B4392A12AC88292D35C810B /* Pods-MineHunters.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MineHunters.debug.xcconfig"; path = "Target Support Files/Pods-MineHunters/Pods-MineHunters.debug.xcconfig"; sourceTree = "<group>"; };
+   41: 		5709B34CF0A7D63546082F79 /* Pods-MineHunters.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MineHunters.release.xcconfig"; path = "Target Support Files/Pods-MineHunters/Pods-MineHunters.release.xcconfig"; sourceTree = "<group>"; };
+   42: 		5B7EB9410499542E8C5724F5 /* Pods-MineHunters-MineHuntersTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MineHunters-MoneyMindTests.debug.xcconfig"; path = "Target Support Files/Pods-MineHunters-MoneyMindTests/Pods-MineHunters-MoneyMindTests.debug.xcconfig"; sourceTree = "<group>"; };
+   43: 		5DCACB8F33CDC322A6C60F78 /* libPods-MineHunters.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-MineHunters.a"; sourceTree = BUILT_PRODUCTS_DIR; };
+   44: 		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = MineHunters/LaunchScreen.storyboard; sourceTree = "<group>"; };
+   45: 		89C6BE57DB24E9ADA2F236DE /* Pods-MineHunters-MineHuntersTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-MineHunters-MoneyMindTests.release.xcconfig"; path = "Target Support Files/Pods-MineHunters-MoneyMindTests/Pods-MineHunters-MoneyMindTests.release.xcconfig"; sourceTree = "<group>"; };
+   54: 				7699B88040F8A987B510C191 /* libPods-MineHunters-MineHuntersTests.a in Frameworks */,
+   62: 				0C80B921A6F3F58F76C31292 /* libPods-MineHunters.a in Frameworks */,
+   69: 		00E356EF1AD99517003FC87E /* MineHuntersTests */ = {
+   72: 				00E356F21AD99517003FC87E /* MineHuntersTests.m */,
+   75: 			path = MineHuntersTests;
+   86: 		13B07FAE1A68108700A75B9A /* MineHunters */ = {
+   96: 			name = MineHunters;
+  103: 				5DCACB8F33CDC322A6C60F78 /* libPods-MineHunters.a */,
+  104: 				19F6CBCC0A4E27FBF8BF4A61 /* libPods-MineHunters-MineHuntersTests.a */,
+  119: 				13B07FAE1A68108700A75B9A /* MineHunters */,
+  121: 				00E356EF1AD99517003FC87E /* MineHuntersTests */,
+  134: 				13B07F961A680F5B00A75B9A /* MineHunters.app */,
+  135: 				00E356EE1AD99517003FC87E /* MineHuntersTests.xctest */,
+  143: 				3B4392A12AC88292D35C810B /* Pods-MineHunters.debug.xcconfig */,
+  144: 				5709B34CF0A7D63546082F79 /* Pods-MineHunters.release.xcconfig */,
+  145: 				5B7EB9410499542E8C5724F5 /* Pods-MineHunters-MineHuntersTests.debug.xcconfig */,
+  146: 				89C6BE57DB24E9ADA2F236DE /* Pods-MineHunters-MineHuntersTests.release.xcconfig */,
+  154: 		00E356ED1AD99517003FC87E /* MineHuntersTests */ = {
+  156: 			buildConfigurationList = 00E357021AD99517003FC87E /* Build configuration list for PBXNativeTarget "MineHuntersTests" */;
+  170: 			name = MineHuntersTests;
+  171: 			productName = MineHuntersTests;
+  172: 			productReference = 00E356EE1AD99517003FC87E /* MineHuntersTests.xctest */;
+  175: 		13B07F861A680F5B00A75B9A /* MineHunters */ = {
+  177: 			buildConfigurationList = 13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "MineHunters" */;
+  191: 			name = MineHunters;
+  192: 			productName = MineHunters;
+  193: 			productReference = 13B07F961A680F5B00A75B9A /* MineHunters.app */;
+  213: 			buildConfigurationList = 83CBB9FA1A601CBA00E9B192 /* Build configuration list for PBXProject "MineHunters" */;
+  226: 				13B07F861A680F5B00A75B9A /* MineHunters */,
+  227: 				00E356ED1AD99517003FC87E /* MineHuntersTests */,
+  274: 				"${PODS_ROOT}/Target Support Files/Pods-MineHunters/Pods-MineHunters-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+  278: 				"${PODS_ROOT}/Target Support Files/Pods-MineHunters/Pods-MineHunters-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+  282: 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-MineHunters/Pods-MineHunters-frameworks.sh\"\n";
+  300: 				"$(DERIVED_FILE_DIR)/Pods-MineHunters-MineHuntersTests-checkManifestLockResult.txt",
+  322: 				"$(DERIVED_FILE_DIR)/Pods-MineHunters-checkManifestLockResult.txt",
+  335: 				"${PODS_ROOT}/Target Support Files/Pods-MineHunters-MineHuntersTests/Pods-MineHunters-MineHuntersTests-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+  339: 				"${PODS_ROOT}/Target Support Files/Pods-MineHunters-MineHuntersTests/Pods-MineHunters-MineHuntersTests-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+  343: 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-MineHunters-MineHuntersTests/Pods-MineHunters-MineHuntersTests-frameworks.sh\"\n";
+  352: 				"${PODS_ROOT}/Target Support Files/Pods-MineHunters/Pods-MineHunters-resources-${CONFIGURATION}-input-files.xcfilelist",
+  356: 				"${PODS_ROOT}/Target Support Files/Pods-MineHunters/Pods-MineHunters-resources-${CONFIGURATION}-output-files.xcfilelist",
+  360: 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-MineHunters/Pods-MineHunters-resources.sh\"\n";
+  369: 				"${PODS_ROOT}/Target Support Files/Pods-MineHunters-MineHuntersTests/Pods-MineHunters-MineHuntersTests-resources-${CONFIGURATION}-input-files.xcfilelist",
+  373: 				"${PODS_ROOT}/Target Support Files/Pods-MineHunters-MineHuntersTests/Pods-MineHunters-MineHuntersTests-resources-${CONFIGURATION}-output-files.xcfilelist",
+  377: 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-MineHunters-MineHuntersTests/Pods-MineHunters-MineHuntersTests-resources.sh\"\n";
+  387: 				00E356F31AD99517003FC87E /* MineHuntersTests.m in Sources */,
+  405: 			target = 13B07F861A680F5B00A75B9A /* MineHunters */;
+  413: 			baseConfigurationReference = 5B7EB9410499542E8C5724F5 /* Pods-MineHunters-MineHuntersTests.debug.xcconfig */;
+  420: 				INFOPLIST_FILE = MineHuntersTests/Info.plist;
+  434: 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/MineHunters.app/MineHunters";
+  440: 			baseConfigurationReference = 89C6BE57DB24E9ADA2F236DE /* Pods-MineHunters-MineHuntersTests.release.xcconfig */;
+  444: 				INFOPLIST_FILE = MineHuntersTests/Info.plist;
+  458: 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/MineHunters.app/MineHunters";
+  464: 			baseConfigurationReference = 3B4392A12AC88292D35C810B /* Pods-MineHunters.debug.xcconfig */;
+  470: 				INFOPLIST_FILE = MineHunters/Info.plist;
+  482: 				PRODUCT_NAME = MineHunters;
+  491: 			baseConfigurationReference = 5709B34CF0A7D63546082F79 /* Pods-MineHunters.release.xcconfig */;
+  496: 				INFOPLIST_FILE = MineHunters/Info.plist;
+  508: 				PRODUCT_NAME = MineHunters;
+  654: 		00E357021AD99517003FC87E /* Build configuration list for PBXNativeTarget "MineHuntersTests" */ = {
+  663: 		13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "MineHunters" */ = {
+  672: 		83CBB9FA1A601CBA00E9B192 /* Build configuration list for PBXProject "MineHunters" */ = {
+
+ios\MineHunters.xcodeproj\xcshareddata\xcschemes\MineHunters.xcscheme:
+  18:                BuildableName = "MineHunters.app"
+  19:                BlueprintName = "MineHunters"
+  20:                ReferencedContainer = "container:MineHunters.xcodeproj">
+  36:                BuildableName = "MineHuntersTests.xctest"
+  37:                BlueprintName = "MineHuntersTests"
+  38:                ReferencedContainer = "container:MineHunters.xcodeproj">
+  58:             BuildableName = "MineHunters.app"
+  59:             BlueprintName = "MineHunters"
+  60:             ReferencedContainer = "container:MineHunters.xcodeproj">
+  75:             BuildableName = "MineHunters.app"
+  76:             BlueprintName = "MineHunters"
+  77:             ReferencedContainer = "container:MineHunters.xcodeproj">
+
+ios\MoneyMindTests\MoneyMindTests.m:
+  10: @interface MineHuntersTests : XCTestCase
+  14: @implementation MineHuntersTests

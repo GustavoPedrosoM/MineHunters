@@ -39,7 +39,7 @@ const initialState = {
   isWin: false,
   level: 0.1,
   mode: 'competitivo', // ou 'casual'
-  ranking: 'Fácil', // Ranking inicial para o modo competitivo
+  ranking: 'Iniciante', // Ranking inicial para o modo competitivo
   victoriesCount: 0,
   countdownTime: null, // Tempo restante em segundos (usado apenas nos rankings com timer)
   bestTimes: {
@@ -50,6 +50,9 @@ const initialState = {
   score: 0, // Pontuação do jogador no ranking "Rei do Campo Minado"
   promotionVisible: false, // Controla a exibição da tela de promoção
   previousRanking: null, // Armazena o ranking anterior para exibir na promoção
+  isButtonSoundMuted: false, // Estado para mutar som dos botões
+  isMusicMuted: false, // Estado para mutar a música do jogo
+  musicVolume: 1, // Volume da música (1 = volume máximo)
 };
 
 const gameReducer = (state, action) => {
@@ -69,75 +72,74 @@ const gameReducer = (state, action) => {
         },
       };
 
-    case 'NEW_GAME':
-      {
-        const cols = params.getColumsAmount(state.level);
-        const rows = params.getRowsAmount(state.level);
-        const mines = getMineCount(state.level);
+    case 'NEW_GAME': {
+      const cols = params.getColumsAmount(state.level);
+      const rows = params.getRowsAmount(state.level);
+      const mines = getMineCount(state.level);
 
-        // Criar o tabuleiro e espalhar as minas
-        let newBoard = createMinedBoard(rows, cols, mines);
+      // Criar o tabuleiro e espalhar as minas
+      let newBoard = createMinedBoard(rows, cols, mines);
 
-        // Calcular nearMines para todos os campos
-        calculateNearMines(newBoard);
+      // Calcular nearMines para todos os campos
+      calculateNearMines(newBoard);
 
-        // Tentar encontrar uma posição segura aleatória
-        let safePosition = findSafePosition(newBoard);
-        let attempts = 0;
-        while (
-          (newBoard[safePosition.row][safePosition.column].mined ||
-            newBoard[safePosition.row][safePosition.column].nearMines !== 0) &&
-          attempts < 1000
-        ) {
-          safePosition = findSafePosition(newBoard);
-          attempts++;
-        }
+      // Tentar encontrar uma posição segura aleatória
+      let safePosition = findSafePosition(newBoard);
+      let attempts = 0;
+      while (
+        (newBoard[safePosition.row][safePosition.column].mined ||
+          newBoard[safePosition.row][safePosition.column].nearMines !== 0) &&
+        attempts < 1000
+      ) {
+        safePosition = findSafePosition(newBoard);
+        attempts++;
+      }
 
-        // Se não encontrar uma posição segura, escolher a primeira posição não minada com nearMines === 0
-        if (
-          newBoard[safePosition.row][safePosition.column].mined ||
-          newBoard[safePosition.row][safePosition.column].nearMines !== 0
-        ) {
-          outerLoop: for (let r = 0; r < rows; r++) {
-            for (let c = 0; c < cols; c++) {
-              if (
-                !newBoard[r][c].mined &&
-                newBoard[r][c].nearMines === 0
-              ) {
-                safePosition = { row: r, column: c };
-                break outerLoop;
-              }
+      // Se não encontrar uma posição segura, escolher a primeira posição não minada com nearMines === 0
+      if (
+        newBoard[safePosition.row][safePosition.column].mined ||
+        newBoard[safePosition.row][safePosition.column].nearMines !== 0
+      ) {
+        outerLoop: for (let r = 0; r < rows; r++) {
+          for (let c = 0; c < cols; c++) {
+            if (
+              !newBoard[r][c].mined &&
+              newBoard[r][c].nearMines === 0
+            ) {
+              safePosition = { row: r, column: c };
+              break outerLoop;
             }
           }
         }
-
-        // Definir a profundidade inicial
-        const initialDepth = 1; // Ajuste este valor conforme necessário
-
-        // Abrir o campo inicial com profundidade limitada
-        openField(newBoard, safePosition.row, safePosition.column, initialDepth);
-
-        // Definir o tempo de contagem regressiva com base no ranking
-        let countdownTime = null;
-        if (state.mode === 'competitivo') {
-          if (state.ranking === 'Especialista') {
-            countdownTime = 210; // 3 minutos e 30 segundos
-          } else if (state.ranking === 'Rei do Campo Minado') {
-            countdownTime = 180; // 3 minutos
-          }
-        }
-
-        return {
-          ...state,
-          board: newBoard,
-          won: false,
-          lost: false,
-          gameStarted: true,
-          gameOverVisible: false,
-          isWin: false,
-          countdownTime: countdownTime,
-        };
       }
+
+      // Definir a profundidade inicial
+      const initialDepth = 1; // Ajuste este valor conforme necessário
+
+      // Abrir o campo inicial com profundidade limitada
+      openField(newBoard, safePosition.row, safePosition.column, initialDepth);
+
+      // Definir o tempo de contagem regressiva com base no ranking
+      let countdownTime = null;
+      if (state.mode === 'competitivo') {
+        if (state.ranking === 'Especialista') {
+          countdownTime = 210; // 3 minutos e 30 segundos
+        } else if (state.ranking === 'Rei do Campo Minado') {
+          countdownTime = 180; // 3 minutos
+        }
+      }
+
+      return {
+        ...state,
+        board: newBoard,
+        won: false,
+        lost: false,
+        gameStarted: true,
+        gameOverVisible: false,
+        isWin: false,
+        countdownTime: countdownTime,
+      };
+    }
 
     case 'OPEN_FIELD':
       if (state.lost || state.won) return state;
@@ -167,16 +169,16 @@ const gameReducer = (state, action) => {
         } else {
           newVictoriesCount += 1;
 
-          if (newRanking === 'Fácil' && newVictoriesCount >= 1) {
+          if (newRanking === 'Iniciante' && newVictoriesCount >= 1) {
             promotionOccurred = true;
-            previousRanking = 'Fácil';
-            newRanking = 'Intermediário';
+            previousRanking = 'Iniciante';
+            newRanking = 'Amador';
             newLevel = 0.2;
             newVictoriesCount = 0;
             newCountdownTime = null;
-          } else if (newRanking === 'Intermediário' && newVictoriesCount >= 1) {
+          } else if (newRanking === 'Amador' && newVictoriesCount >= 1) {
             promotionOccurred = true;
-            previousRanking = 'Intermediário';
+            previousRanking = 'Amador';
             newRanking = 'Especialista';
             newLevel = 0.3;
             newVictoriesCount = 0;
@@ -226,9 +228,67 @@ const gameReducer = (state, action) => {
       const newBoardSelect = cloneBoard(state.board);
       invertFlag(newBoardSelect, action.row, action.column);
 
+      // Verificar se o jogo foi vencido após marcar/desmarcar a bandeira
+      const wonAfterFlag = wonGame(newBoardSelect);
+
+      let newVictoriesCountSelect = state.victoriesCount;
+      let newRankingSelect = state.ranking;
+      let newLevelSelect = state.level;
+      let newCountdownTimeSelect = state.countdownTime;
+      let newScoreSelect = state.score;
+      let promotionOccurredSelect = false;
+      let previousRankingSelect = state.previousRanking;
+
+      if (wonAfterFlag && state.mode === 'competitivo') {
+        if (newRankingSelect === 'Rei do Campo Minado') {
+          // Sistema de pontuação no ranking "Rei do Campo Minado"
+          newScoreSelect += 3;
+        } else {
+          newVictoriesCountSelect += 1;
+
+          if (newRankingSelect === 'Iniciante' && newVictoriesCountSelect >= 1) {
+            promotionOccurredSelect = true;
+            previousRankingSelect = 'Iniciante';
+            newRankingSelect = 'Amador';
+            newLevelSelect = 0.2;
+            newVictoriesCountSelect = 0;
+            newCountdownTimeSelect = null;
+          } else if (newRankingSelect === 'Amador' && newVictoriesCountSelect >= 1) {
+            promotionOccurredSelect = true;
+            previousRankingSelect = 'Amador';
+            newRankingSelect = 'Especialista';
+            newLevelSelect = 0.3;
+            newVictoriesCountSelect = 0;
+            newCountdownTimeSelect = 210; // 3 minutos e 30 segundos
+          } else if (newRankingSelect === 'Especialista' && newVictoriesCountSelect >= 1) {
+            promotionOccurredSelect = true;
+            previousRankingSelect = 'Especialista';
+            newRankingSelect = 'Rei do Campo Minado';
+            newLevelSelect = 0.3;
+            newVictoriesCountSelect = 0;
+            newCountdownTimeSelect = 180; // 3 minutos
+            newScoreSelect = 0; // Iniciar pontuação
+          }
+        }
+      }
+
+      if (wonAfterFlag && state.mode === 'casual') {
+        // Lógica para o modo casual se necessário
+      }
+
       return {
         ...state,
         board: newBoardSelect,
+        won: wonAfterFlag,
+        gameOverVisible: wonAfterFlag || state.gameOverVisible,
+        isWin: wonAfterFlag || state.isWin,
+        victoriesCount: newVictoriesCountSelect,
+        ranking: newRankingSelect,
+        level: newLevelSelect,
+        countdownTime: newCountdownTimeSelect,
+        score: newScoreSelect,
+        promotionVisible: promotionOccurredSelect || state.promotionVisible,
+        previousRanking: promotionOccurredSelect ? previousRankingSelect : state.previousRanking,
       };
 
     case 'GAME_OVER_TIME_UP':
@@ -249,6 +309,17 @@ const gameReducer = (state, action) => {
         score: updatedScore,
       };
 
+    case 'LOSE_POINT_FOR_EXIT':
+      let updatedScoreForExit = state.score;
+      if (state.ranking === 'Rei do Campo Minado') {
+        // Subtrair 1 ponto, mínimo zero
+        updatedScoreForExit = Math.max(0, updatedScoreForExit - 1);
+      }
+      return {
+        ...state,
+        score: updatedScoreForExit,
+      };
+
     case 'TOGGLE_GAME_OVER':
       return { ...state, gameOverVisible: !state.gameOverVisible };
 
@@ -258,6 +329,15 @@ const gameReducer = (state, action) => {
         promotionVisible: false,
         previousRanking: null,
       };
+
+    case 'TOGGLE_BUTTON_SOUND':
+      return { ...state, isButtonSoundMuted: !state.isButtonSoundMuted };
+
+    case 'TOGGLE_MUSIC':
+      return { ...state, isMusicMuted: !state.isMusicMuted };
+
+    case 'SET_MUSIC_VOLUME':
+      return { ...state, musicVolume: action.volume };
 
     default:
       return state;

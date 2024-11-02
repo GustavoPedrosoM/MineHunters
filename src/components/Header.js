@@ -8,7 +8,7 @@ import Timer from './Timer';
 import LinearGradient from 'react-native-linear-gradient';
 import { GameContext } from '../context/GameContext';
 
-const Header = ({ flagsLeft, onNewGame, onExit, onFlagPress, timerRef, onPause }) => {
+const Header = ({ flagsLeft, onNewGame, onExit, timerRef, onPause }) => {
   console.log('Header.js re-render');
 
   const { state } = useContext(GameContext);
@@ -18,12 +18,13 @@ const Header = ({ flagsLeft, onNewGame, onExit, onFlagPress, timerRef, onPause }
 
   return (
     <View style={styles.container}>
-      <TouchableOpacity onPress={onFlagPress} style={styles.flagContainer}>
+      {/* Remover o onPress do TouchableOpacity */}
+      <View style={styles.flagContainer}>
         <LinearGradient colors={['#f9ca24', '#EE5A24']} style={styles.flagGradient}>
           <Flag bigger={true} />
           <Text style={styles.flagsText}>= {flagsLeft}</Text>
         </LinearGradient>
-      </TouchableOpacity>
+      </View>
 
       <LinearGradient colors={['#f9ca24', '#EE5A24']} style={styles.timerContainer}>
         <Timer ref={timerRef} />

@@ -20,9 +20,9 @@ const RankingPromotionDialog = ({
   // Função para determinar a cor do ranking
   const getRankingColor = (ranking) => {
     switch (ranking) {
-      case 'Fácil':
+      case 'Iniciante':
         return 'green';
-      case 'Intermediário':
+      case 'Amador':
         return 'orange';
       case 'Especialista':
         return 'red';

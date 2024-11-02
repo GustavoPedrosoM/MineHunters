@@ -1,35 +1,71 @@
 // src/components/CompetitiveHeader.js
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { View, StyleSheet, Text, TouchableOpacity, Dimensions } from 'react-native';
-import { Button, Portal, Dialog } from 'react-native-paper';
+import { Portal, Dialog } from 'react-native-paper';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import Flag from './Flag';
 import Timer from './Timer';
 import LinearGradient from 'react-native-linear-gradient';
+import Sound from 'react-native-sound';
+import MusicPlayer from '../MusicPlayer'; // Importar o MusicPlayer
 
 // Obter as dimensões da tela
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
 const CompetitiveHeader = ({
   flagsLeft,
-  onNewGame,
   onExit,
-  onFlagPress,
   timerRef,
   countdown,
   onCountdownFinish,
   ranking,
   victoriesCount,
-  score, // Receber a pontuação atual
+  score,
 }) => {
   const [menuVisible, setMenuVisible] = useState(false);
+
+  // Referência para o som do botão
+  const buttonPressSoundRef = useRef(null);
+
+  useEffect(() => {
+    // Inicializar o som quando o componente for montado
+    Sound.setCategory('Playback');
+    buttonPressSoundRef.current = new Sound(
+      require('../assets/sounds/button-press.mp3'),
+      (error) => {
+        if (error) {
+          console.log('Erro ao carregar o som', error);
+        }
+      }
+    );
+
+    // Liberar o som quando o componente for desmontado
+    return () => {
+      if (buttonPressSoundRef.current) {
+        buttonPressSoundRef.current.release();
+      }
+    };
+  }, []);
+
+  const playButtonSound = () => {
+    if (buttonPressSoundRef.current) {
+      buttonPressSoundRef.current.stop(() => {
+        buttonPressSoundRef.current.play((success) => {
+          if (!success) {
+            console.log('Erro ao tocar o som');
+          }
+        });
+      });
+    }
+  };
 
   const openMenu = () => {
     if (timerRef.current && (ranking === 'Especialista' || ranking === 'Rei do Campo Minado')) {
       timerRef.current.stop();
     }
     setMenuVisible(true);
+    MusicPlayer.pause(); // Pausar a música
   };
 
   const closeMenu = () => {
@@ -37,11 +73,13 @@ const CompetitiveHeader = ({
     if (timerRef.current && (ranking === 'Especialista' || ranking === 'Rei do Campo Minado')) {
       timerRef.current.start();
     }
+    MusicPlayer.play(); // Retomar a música
   };
 
-  const handleNewGame = () => {
-    setMenuVisible(false);
-    onNewGame();
+  const handleExitFromMenu = () => {
+    playButtonSound();
+    MusicPlayer.play(); // Retomar a música antes de sair
+    onExit();
   };
 
   return (
@@ -49,35 +87,39 @@ const CompetitiveHeader = ({
       <LinearGradient colors={['#f9ca24', '#EE5A24']} style={styles.rankingContainer}>
         <View style={styles.timerAndRankingContainer}>
           <Text style={styles.rankingText}>Ranking: {ranking}</Text>
-            {ranking === 'Rei do Campo Minado' ? (
-              <Text style={styles.scoreText}>Pontuação: {score}</Text>
-              ) : (
+          {ranking === 'Rei do Campo Minado' ? (
+            <Text style={styles.scoreText}>Pontuação: {score}</Text>
+          ) : (
             <Text style={styles.victoriesText}>Vitórias: {victoriesCount}</Text>
-              )}
-            {/* Renderizar o Timer apenas se o ranking for 'Especialista' ou 'Rei do Campo Minado' */}
-            {(ranking === 'Especialista' || ranking === 'Rei do Campo Minado') && (
-              <Timer
-                ref={timerRef}
-                countdown={countdown}
-                onCountdownFinish={onCountdownFinish}
-              />
-              )}
-            </View>
-              
-        <TouchableOpacity onPress={onFlagPress} style={styles.flagContainer}>
-            <View style={styles.flagGradient}>
-              <Flag bigger={true} />
-              <Text style={styles.flagsText}>= {flagsLeft}</Text>
-            </View>
-        </TouchableOpacity>
+          )}
+          {/* Renderizar o Timer apenas se o ranking for 'Especialista' ou 'Rei do Campo Minado' */}
+          {(ranking === 'Especialista' || ranking === 'Rei do Campo Minado') && (
+            <Timer
+              ref={timerRef}
+              countdown={countdown}
+              onCountdownFinish={onCountdownFinish}
+            />
+          )}
+        </View>
 
-        <TouchableOpacity onPress={openMenu}>
+        <View style={styles.flagContainer}>
+          <View style={styles.flagGradient}>
+            <Flag bigger={true} />
+            <Text style={styles.flagsText}>= {flagsLeft}</Text>
+          </View>
+        </View>
+
+        <TouchableOpacity
+          onPress={() => {
+            playButtonSound(); // Tocar som ao pressionar o botão de pausa
+            openMenu();
+          }}
+        >
           <View style={styles.buttonPause}>
             <Icon name="pause-circle" size={screenWidth * 0.08} color="white" />
           </View>
         </TouchableOpacity>
       </LinearGradient>
-      
 
       {menuVisible && (
         <Portal>
@@ -86,12 +128,22 @@ const CompetitiveHeader = ({
               <Dialog.Title style={styles.containerTitle}>Pausado</Dialog.Title>
               <Dialog.Content>
                 <View style={styles.buttonContainer}>
-                  <TouchableOpacity onPress={handleNewGame}>
+                  {/* Botão "Continuar Jogando" */}
+                  <TouchableOpacity
+                    onPress={() => {
+                      playButtonSound();
+                      closeMenu();
+                    }}
+                  >
                     <LinearGradient colors={['#4cd137', '#009432']} style={styles.button}>
-                      <Text style={styles.textButtonMenu}>Novo Jogo</Text>
+                      <Text style={styles.textButtonMenu}>Continuar Jogando</Text>
                     </LinearGradient>
                   </TouchableOpacity>
-                  <TouchableOpacity onPress={onExit}>
+
+                  {/* Botão "Menu Principal" */}
+                  <TouchableOpacity
+                    onPress={handleExitFromMenu}
+                  >
                     <LinearGradient colors={['#eb4d4b', 'red']} style={styles.button}>
                       <Text style={styles.textButtonMenu}>Menu Principal</Text>
                     </LinearGradient>
@@ -132,7 +184,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
 
-  // estilos do ranking 
+  // estilos do ranking
   rankingContainer: {
     paddingHorizontal: screenWidth * 0.08,
     paddingVertical: screenHeight * 0.008,
@@ -156,7 +208,7 @@ const styles = StyleSheet.create({
   // estilo da pontuação de ranking
   scoreText: {
     fontSize: screenWidth * 0.035,
-    color: 'white', 
+    color: 'white',
     fontFamily: 'SpicyRice-Regular',
   },
 

@@ -51,7 +51,8 @@ const styles = StyleSheet.create({
   containerTitle: {
     color: 'white',
     fontFamily: 'SpicyRice-Regular',
-    fontSize: screenWidth * 0.055,
+    fontSize: screenWidth * 0.045,
+    marginTop: screenHeight * 0.03,
   },
   buttonContainer: {
     flexDirection: 'column',
