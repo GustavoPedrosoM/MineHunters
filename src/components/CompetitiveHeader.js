@@ -1,6 +1,6 @@
 // src/components/CompetitiveHeader.js
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useContext } from 'react';
 import { View, StyleSheet, Text, TouchableOpacity, Dimensions } from 'react-native';
 import { Portal, Dialog } from 'react-native-paper';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -8,9 +8,9 @@ import Flag from './Flag';
 import Timer from './Timer';
 import LinearGradient from 'react-native-linear-gradient';
 import Sound from 'react-native-sound';
-import MusicPlayer from '../MusicPlayer'; // Importar o MusicPlayer
+import MusicPlayer from '../MusicPlayer';
+import { GameContext } from '../context/GameContext'; // Importar GameContext
 
-// Obter as dimensões da tela
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
 const CompetitiveHeader = ({
@@ -23,49 +23,36 @@ const CompetitiveHeader = ({
   victoriesCount,
   score,
 }) => {
+  const { state } = useContext(GameContext); // Obter o estado do contexto
   const [menuVisible, setMenuVisible] = useState(false);
-
-  // Referência para o som do botão
   const buttonPressSoundRef = useRef(null);
 
   useEffect(() => {
-    // Inicializar o som quando o componente for montado
     Sound.setCategory('Playback');
     buttonPressSoundRef.current = new Sound(
       require('../assets/sounds/button-press.mp3'),
       (error) => {
-        if (error) {
-          console.log('Erro ao carregar o som', error);
-        }
+        if (error) console.log('Erro ao carregar o som', error);
       }
     );
 
-    // Liberar o som quando o componente for desmontado
-    return () => {
-      if (buttonPressSoundRef.current) {
-        buttonPressSoundRef.current.release();
-      }
-    };
+    return () => buttonPressSoundRef.current?.release();
   }, []);
 
-  const playButtonSound = () => {
-    if (buttonPressSoundRef.current) {
-      buttonPressSoundRef.current.stop(() => {
-        buttonPressSoundRef.current.play((success) => {
-          if (!success) {
-            console.log('Erro ao tocar o som');
-          }
-        });
+  const playButtonSound = useCallback(() => {
+    buttonPressSoundRef.current?.stop(() => {
+      buttonPressSoundRef.current?.play((success) => {
+        if (!success) console.log('Erro ao tocar o som');
       });
-    }
-  };
+    });
+  }, []);
 
   const openMenu = () => {
     if (timerRef.current && (ranking === 'Especialista' || ranking === 'Rei do Campo Minado')) {
       timerRef.current.stop();
     }
     setMenuVisible(true);
-    MusicPlayer.pause(); // Pausar a música
+    if (!state.isMusicMuted) MusicPlayer.pause(); // Pausar a música se não estiver em modo mudo
   };
 
   const closeMenu = () => {
@@ -73,12 +60,12 @@ const CompetitiveHeader = ({
     if (timerRef.current && (ranking === 'Especialista' || ranking === 'Rei do Campo Minado')) {
       timerRef.current.start();
     }
-    MusicPlayer.play(); // Retomar a música
+    if (!state.isMusicMuted) MusicPlayer.play(); // Retomar a música se não estiver em modo mudo
   };
 
   const handleExitFromMenu = () => {
     playButtonSound();
-    MusicPlayer.play(); // Retomar a música antes de sair
+    if (!state.isMusicMuted) MusicPlayer.play(); // Retomar a música antes de sair se não estiver em modo mudo
     onExit();
   };
 
@@ -92,7 +79,6 @@ const CompetitiveHeader = ({
           ) : (
             <Text style={styles.victoriesText}>Vitórias: {victoriesCount}</Text>
           )}
-          {/* Renderizar o Timer apenas se o ranking for 'Especialista' ou 'Rei do Campo Minado' */}
           {(ranking === 'Especialista' || ranking === 'Rei do Campo Minado') && (
             <Timer
               ref={timerRef}
@@ -111,7 +97,7 @@ const CompetitiveHeader = ({
 
         <TouchableOpacity
           onPress={() => {
-            playButtonSound(); // Tocar som ao pressionar o botão de pausa
+            playButtonSound();
             openMenu();
           }}
         >
@@ -125,10 +111,9 @@ const CompetitiveHeader = ({
         <Portal>
           <Dialog visible={menuVisible} onDismiss={closeMenu} style={styles.dialogContainer}>
             <LinearGradient colors={['#222', 'black']} style={styles.menu}>
-              <Dialog.Title style={styles.containerTitle}>Pausado</Dialog.Title>
+              <Dialog.Title style={styles.containerTitle}>Em pause</Dialog.Title>
               <Dialog.Content>
                 <View style={styles.buttonContainer}>
-                  {/* Botão "Continuar Jogando" */}
                   <TouchableOpacity
                     onPress={() => {
                       playButtonSound();
@@ -140,10 +125,7 @@ const CompetitiveHeader = ({
                     </LinearGradient>
                   </TouchableOpacity>
 
-                  {/* Botão "Menu Principal" */}
-                  <TouchableOpacity
-                    onPress={handleExitFromMenu}
-                  >
+                  <TouchableOpacity onPress={handleExitFromMenu}>
                     <LinearGradient colors={['#eb4d4b', 'red']} style={styles.button}>
                       <Text style={styles.textButtonMenu}>Menu Principal</Text>
                     </LinearGradient>
@@ -163,8 +145,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: screenWidth * 0.02,
     height: screenHeight * 0.2,
   },
-
-  // estilos da bandeira
   flagContainer: {
     alignItems: 'center',
   },
@@ -178,13 +158,9 @@ const styles = StyleSheet.create({
     color: 'white',
     marginLeft: screenWidth * 0.01,
   },
-
-  // estilos do timer
   timerAndRankingContainer: {
     alignItems: 'center',
   },
-
-  // estilos do ranking
   rankingContainer: {
     paddingHorizontal: screenWidth * 0.08,
     paddingVertical: screenHeight * 0.008,
@@ -204,20 +180,16 @@ const styles = StyleSheet.create({
     color: '#FFF',
     fontFamily: 'SpicyRice-Regular',
   },
-
-  // estilo da pontuação de ranking
   scoreText: {
     fontSize: screenWidth * 0.035,
     color: 'white',
     fontFamily: 'SpicyRice-Regular',
   },
-
-  // estilo do icone de pause
   buttonPause: {
     alignItems: 'center',
     justifyContent: 'center',
+    paddingLeft: screenWidth * 0.02,
   },
-
   dialogContainer: {
     backgroundColor: 'transparent',
     shadowColor: 'transparent',
@@ -227,13 +199,15 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     overflow: 'hidden',
     width: screenWidth * 0.8,
+    height: screenWidth * 0.5,
     alignSelf: 'center',
   },
   containerTitle: {
     color: 'white',
     fontFamily: 'SpicyRice-Regular',
     textAlign: 'center',
-    fontSize: screenWidth * 0.05,
+    fontSize: screenWidth * 0.046,
+    marginTop: screenHeight * 0.03,
   },
   buttonContainer: {
     marginTop: screenHeight * 0.02,
@@ -251,9 +225,6 @@ const styles = StyleSheet.create({
     fontSize: screenWidth * 0.045,
     color: 'white',
     fontFamily: 'SpicyRice-Regular',
-  },
-  buttonCancel: {
-    alignSelf: 'center',
   },
 });
 

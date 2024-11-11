@@ -13,8 +13,9 @@ import {
   invertFlag,
   getMineCount,
   findSafePosition,
+  getColumsAmount,
+  getRowsAmount
 } from '../functions';
-import params from '../params';
 
 // Função para mapear nível numérico para chave de string
 const getLevelKey = (level) => {
@@ -73,8 +74,8 @@ const gameReducer = (state, action) => {
       };
 
     case 'NEW_GAME': {
-      const cols = params.getColumsAmount(state.level);
-      const rows = params.getRowsAmount(state.level);
+      const cols = getColumsAmount(state.level);
+      const rows = getRowsAmount(state.level);
       const mines = getMineCount(state.level);
 
       // Criar o tabuleiro e espalhar as minas

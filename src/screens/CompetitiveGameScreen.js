@@ -1,72 +1,54 @@
 // src/screens/CompetitiveGameScreen.js
 
-import React, { useContext, useEffect, useRef, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState, useCallback } from 'react';
 import { View, StyleSheet, ImageBackground, AppState } from 'react-native';
 import Sound from 'react-native-sound';
 
 import { GameContext } from '../context/GameContext';
 import CompetitiveHeader from '../components/CompetitiveHeader';
 import MineField from '../components/MineField';
-import GameOverDialog from '../components/gameOverDialog';
+import GameOverDialog from '../components/GameOverDialog';
 import RankingPromotionDialog from '../components/RankingPromotionDialog';
-import { flagsUsed, getMineCount, getBlockSize } from '../functions';
-import params from '../params';
-import MusicPlayer from '../MusicPlayer'; // Importar o MusicPlayer
+import { flagsUsed, getMineCount, getBlockSize, boardSize } from '../functions';
+import MusicPlayer from '../MusicPlayer';
 
 const CompetitiveGameScreen = ({ navigation }) => {
   const { state, dispatch } = useContext(GameContext);
   const timerRef = useRef();
   const appState = useRef(AppState.currentState);
   const [gameStarted, setGameStarted] = useState(false);
-
-  // Referência para o som do botão
   const buttonPressSoundRef = useRef(null);
 
   useEffect(() => {
-    // Inicializar o som quando o componente for montado
     Sound.setCategory('Playback');
     buttonPressSoundRef.current = new Sound(
       require('../assets/sounds/button-press.mp3'),
       (error) => {
-        if (error) {
-          console.log('Erro ao carregar o som', error);
-        }
+        if (error) console.log('Erro ao carregar o som', error);
       }
     );
-
-    // Liberar o som quando o componente for desmontado
-    return () => {
-      if (buttonPressSoundRef.current) {
-        buttonPressSoundRef.current.release();
-      }
-    };
+    return () => buttonPressSoundRef.current?.release();
   }, []);
 
-  const playButtonSound = () => {
-    if (buttonPressSoundRef.current) {
-      buttonPressSoundRef.current.stop(() => {
-        buttonPressSoundRef.current.play((success) => {
-          if (!success) {
-            console.log('Erro ao tocar o som');
-          }
-        });
+  const playButtonSound = useCallback(() => {
+    buttonPressSoundRef.current?.stop(() => {
+      buttonPressSoundRef.current?.play((success) => {
+        if (!success) console.log('Erro ao tocar o som');
       });
-    }
-  };
+    });
+  }, []);
 
   useEffect(() => {
     try {
       dispatch({ type: 'SET_MODE', mode: 'competitivo' });
       dispatch({ type: 'SET_LEVEL', level: state.level });
       dispatch({ type: 'NEW_GAME' });
-
-      setGameStarted(true); // Indica que um novo jogo foi iniciado
+      setGameStarted(true);
     } catch (e) {
       console.error('Erro ao iniciar o jogo:', e);
     }
-  }, [state.ranking]);
+  }, [dispatch, state.level]);
 
-  // Inicia o timer apenas se o ranking for 'Especialista' ou 'Rei do Campo Minado' e a tela de promoção não estiver visível
   useEffect(() => {
     if (timerRef.current && gameStarted && !state.promotionVisible) {
       if (
@@ -75,13 +57,11 @@ const CompetitiveGameScreen = ({ navigation }) => {
       ) {
         timerRef.current.reset();
         timerRef.current.start();
-        console.log(`Timer iniciado no ranking ${state.ranking}`);
       }
       setGameStarted(false);
     }
-  }, [timerRef.current, gameStarted, state.promotionVisible]);
+  }, [timerRef, gameStarted, state.promotionVisible, state.ranking]);
 
-  // Parar o timer se o ranking não for 'Especialista' ou 'Rei do Campo Minado'
   useEffect(() => {
     if (
       state.ranking !== 'Especialista' &&
@@ -90,20 +70,15 @@ const CompetitiveGameScreen = ({ navigation }) => {
     ) {
       timerRef.current.stop();
       timerRef.current.reset();
-      console.log(
-        'Timer parado e resetado pois o ranking não é Especialista nem Rei do Campo Minado'
-      );
     }
   }, [state.ranking]);
 
-  // Detectar quando o aplicativo é fechado ou vai para o background
   useEffect(() => {
     const handleAppStateChange = (nextAppState) => {
       if (
         appState.current.match(/active/) &&
         nextAppState.match(/inactive|background/)
       ) {
-        // O aplicativo está sendo fechado ou minimizado
         if (
           state.ranking === 'Rei do Campo Minado' &&
           !state.won &&
@@ -120,40 +95,36 @@ const CompetitiveGameScreen = ({ navigation }) => {
       handleAppStateChange
     );
 
-    return () => {
-      subscription.remove();
-    };
-  }, [state.ranking, state.won, state.lost]);
+    return () => subscription.remove();
+  }, [state.ranking, state.won, state.lost, dispatch]);
 
-  const handleNewGame = () => {
-    playButtonSound(); // Tocar som ao iniciar novo jogo
-    try {
-      dispatch({ type: 'NEW_GAME' });
-      setGameStarted(true); // Indica que um novo jogo foi iniciado
-    } catch (e) {
-      console.error('Erro ao iniciar um novo jogo:', e);
-    }
-  };
-
-  const handleExit = () => {
+  const handleNewGame = useCallback(() => {
     playButtonSound();
-    // Verificar se o jogador está no ranking "Rei do Campo Minado" e se o jogo não terminou
+    dispatch({ type: 'NEW_GAME' });
+    setGameStarted(true);
+    if (!state.isMusicMuted) MusicPlayer.play();
+
+    timerRef.current?.reset();
+    timerRef.current?.start();
+  }, [dispatch, playButtonSound, state.isMusicMuted]);
+
+  const handleExit = useCallback(() => {
+    playButtonSound();
     if (state.ranking === 'Rei do Campo Minado' && !state.won && !state.lost) {
       dispatch({ type: 'LOSE_POINT_FOR_EXIT' });
     }
+    if (!state.isMusicMuted) MusicPlayer.play();
     navigation.navigate('Home');
-  };
+  }, [playButtonSound, navigation, state.ranking, state.won, state.lost, state.isMusicMuted, dispatch]);
 
   useEffect(() => {
     if (state.won || state.lost) {
-      if (timerRef.current) {
-        timerRef.current.stop();
-      }
+      timerRef.current?.stop();
+      if (!state.isMusicMuted) MusicPlayer.play();
     }
-  }, [state.won, state.lost]);
+  }, [state.won, state.lost, state.isMusicMuted]);
 
-  // Função para lidar com o fim do tempo
-  const handleCountdownFinish = () => {
+  const handleCountdownFinish = useCallback(() => {
     if (
       (state.ranking === 'Especialista' ||
         state.ranking === 'Rei do Campo Minado') &&
@@ -161,14 +132,12 @@ const CompetitiveGameScreen = ({ navigation }) => {
     ) {
       dispatch({ type: 'GAME_OVER_TIME_UP' });
     }
-  };
+  }, [dispatch, state.ranking, state.mode]);
 
-  // Funções para o diálogo de promoção
-  const handleContinue = () => {
-    playButtonSound(); // Tocar som ao continuar
+  const handleContinue = useCallback(() => {
+    playButtonSound();
     dispatch({ type: 'HIDE_PROMOTION' });
     handleNewGame();
-    // Iniciar o timer após o diálogo de promoção ser fechado
     if (
       timerRef.current &&
       (state.ranking === 'Especialista' || state.ranking === 'Rei do Campo Minado')
@@ -176,19 +145,18 @@ const CompetitiveGameScreen = ({ navigation }) => {
       timerRef.current.reset();
       timerRef.current.start();
     }
-  };
+  }, [dispatch, handleNewGame, playButtonSound, state.ranking]);
 
-  const handleGoHome = () => {
-    playButtonSound(); // Tocar som ao voltar para o menu principal
+  const handleGoHome = useCallback(() => {
+    playButtonSound();
     dispatch({ type: 'HIDE_PROMOTION' });
     navigation.navigate('Home');
-  };
+  }, [playButtonSound, dispatch, navigation]);
 
   const totalMines = getMineCount(state.level);
   const flagsLeft = totalMines - flagsUsed(state.board);
   const blockSize = getBlockSize(state.level);
 
-  // Definir o tempo de contagem regressiva com base no ranking
   const countdownTime =
     state.ranking === 'Especialista'
       ? 210
@@ -196,7 +164,6 @@ const CompetitiveGameScreen = ({ navigation }) => {
       ? 180
       : null;
 
-  // Determinar o número de vitórias necessárias para a promoção anterior
   const victoriesNeeded =
     state.previousRanking === 'Iniciante'
       ? 1
@@ -208,7 +175,7 @@ const CompetitiveGameScreen = ({ navigation }) => {
 
   return (
     <ImageBackground
-      source={require('../assets/images/teladejogo4.png')}
+      source={require('../assets/images/teladejogo.png')}
       style={styles.background}
     >
       <View style={styles.container}>
@@ -221,14 +188,14 @@ const CompetitiveGameScreen = ({ navigation }) => {
             onCountdownFinish={handleCountdownFinish}
             ranking={state.ranking}
             victoriesCount={state.victoriesCount}
-            score={state.score} // Passar a pontuação atual
+            score={state.score}
           />
         </View>
         <View style={styles.boardContainer}>
           <View
             style={[
               styles.board,
-              { width: params.boardSize, height: params.boardSize },
+              { width: boardSize, height: boardSize },
             ]}
           >
             <MineField
@@ -250,7 +217,6 @@ const CompetitiveGameScreen = ({ navigation }) => {
           onExit={handleExit}
           isWin={state.isWin}
         />
-        {/* Exibir o diálogo de promoção de ranking */}
         <RankingPromotionDialog
           visible={state.promotionVisible}
           onContinue={handleContinue}

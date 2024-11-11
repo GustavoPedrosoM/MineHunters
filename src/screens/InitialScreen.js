@@ -196,7 +196,7 @@ const InitialScreen = ({ navigation }) => {
 
   return (
     <ImageBackground
-      source={require('../assets/images/telainicial5.png')}
+      source={require('../assets/images/telainicial.png')}
       style={styles.background}
     >
       <View style={styles.headerContainer}>

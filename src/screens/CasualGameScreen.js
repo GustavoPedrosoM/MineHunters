@@ -1,6 +1,6 @@
 // src/screens/CasualGameScreen.js
 
-import React, { useContext, useEffect, useRef, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState, useCallback } from 'react';
 import {
   View,
   StyleSheet,
@@ -14,141 +14,84 @@ import LinearGradient from 'react-native-linear-gradient';
 import Sound from 'react-native-sound';
 
 import { GameContext } from '../context/GameContext';
-import Header from '../components/Header';
+import Header from '../components/CasualHeader';
 import MineField from '../components/MineField';
-import GameOverDialog from '../components/gameOverDialog';
-import { flagsUsed, getMineCount, getBlockSize } from '../functions';
-import params from '../params';
-import MusicPlayer from '../MusicPlayer'; // Importar o MusicPlayer
+import GameOverDialog from '../components/GameOverDialog';
+import { flagsUsed, getMineCount, getBlockSize, boardSize } from '../functions';
+import MusicPlayer from '../MusicPlayer';
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
 const CasualGameScreen = ({ navigation, route }) => {
   const { state, dispatch, saveBestTime, loadBestTime } = useContext(GameContext);
   const timerRef = useRef();
+  const buttonPressSoundRef = useRef(null);
+
   const [gameStarted, setGameStarted] = useState(false);
   const [menuVisible, setMenuVisible] = useState(false);
 
-  // Referência para o som do botão
-  const buttonPressSoundRef = useRef(null);
-
   useEffect(() => {
-    // Inicializar o som quando o componente for montado
     Sound.setCategory('Playback');
     buttonPressSoundRef.current = new Sound(
       require('../assets/sounds/button-press.mp3'),
       (error) => {
-        if (error) {
-          console.log('Erro ao carregar o som', error);
-        }
+        if (error) console.log('Erro ao carregar o som', error);
       }
     );
-
-    // Liberar o som quando o componente for desmontado
-    return () => {
-      if (buttonPressSoundRef.current) {
-        buttonPressSoundRef.current.release();
-      }
-    };
+    return () => buttonPressSoundRef.current?.release();
   }, []);
 
-  const playButtonSound = () => {
-    if (buttonPressSoundRef.current) {
-      buttonPressSoundRef.current.stop(() => {
-        buttonPressSoundRef.current.play((success) => {
-          if (!success) {
-            console.log('Erro ao tocar o som');
-          }
-        });
+  const playButtonSound = useCallback(() => {
+    buttonPressSoundRef.current?.stop(() => {
+      buttonPressSoundRef.current?.play((success) => {
+        if (!success) console.log('Erro ao tocar o som');
       });
-    }
-  };
-
-  const openMenu = () => {
-    playButtonSound(); // Tocar som ao abrir o menu
-    if (timerRef.current) {
-      timerRef.current.stop();
-    }
-    MusicPlayer.pause(); // Pausar a música
-    setMenuVisible(true);
-  };
-
-  const closeMenu = () => {
-    playButtonSound(); // Tocar som ao fechar o menu
-    if (timerRef.current) {
-      timerRef.current.start();
-    }
-    MusicPlayer.play(); // Retomar a música
-    setMenuVisible(false);
-  };
+    });
+  }, []);
 
   useEffect(() => {
-    try {
+    if (!gameStarted) {
       dispatch({ type: 'SET_MODE', mode: 'casual' });
       dispatch({ type: 'SET_LEVEL', level: route.params.difficultLevel });
       dispatch({ type: 'NEW_GAME' });
-
-      setGameStarted(true);
-
       loadBestTime(route.params.difficultLevel);
-    } catch (e) {
-      console.error('Erro ao iniciar o jogo:', e);
+      setGameStarted(true);
     }
-  }, [route.params.difficultLevel]);
+  }, [dispatch, route.params.difficultLevel, loadBestTime, gameStarted]);
 
   useEffect(() => {
-    if (timerRef.current && gameStarted) {
+    if (timerRef.current) {
       timerRef.current.reset();
       timerRef.current.start();
-      setGameStarted(false);
     }
-  }, [timerRef.current, gameStarted]);
+  }, [gameStarted]);
 
-  const handleNewGame = () => {
-    playButtonSound(); // Tocar som ao iniciar novo jogo
-    try {
-      dispatch({ type: 'NEW_GAME' });
+  const handleNewGame = useCallback(() => {
+    playButtonSound();
+    dispatch({ type: 'NEW_GAME' });
+    loadBestTime(state.level);
+    setGameStarted(false);
+    setMenuVisible(false);
+    if (!state.isMusicMuted) MusicPlayer.play();
 
-      setGameStarted(true);
+    timerRef.current?.reset();
+    timerRef.current?.start();
+  }, [dispatch, loadBestTime, playButtonSound, state.level, state.isMusicMuted]);
 
-      loadBestTime(state.level);
-
-      // Fechar o menu de pausa
-      setMenuVisible(false);
-
-      // Retomar a música
-      MusicPlayer.play();
-
-      // Reiniciar o timer
-      if (timerRef.current) {
-        timerRef.current.reset();
-        timerRef.current.start();
-      }
-    } catch (e) {
-      console.error('Erro ao iniciar um novo jogo:', e);
-    }
-  };
-
-  const handleExit = () => {
-    playButtonSound(); // Tocar som ao sair
-    MusicPlayer.play(); // Retomar a música antes de sair
+  const handleExit = useCallback(() => {
+    playButtonSound();
+    if (!state.isMusicMuted) MusicPlayer.play();
     navigation.navigate('Home');
-  };
+  }, [playButtonSound, navigation, state.isMusicMuted]);
 
   useEffect(() => {
     if (state.won || state.lost) {
-      if (timerRef.current) {
-        const currentTime = timerRef.current.getTime();
-        timerRef.current.stop();
-        if (state.won) {
-          saveBestTime(state.level, currentTime);
-        }
-      } else {
-        console.warn('timerRef.current não está definido ao parar o timer');
-      }
-      MusicPlayer.play(); // Retomar a música quando o jogo termina
+      const currentTime = timerRef.current?.getTime();
+      timerRef.current?.stop();
+      if (state.won) saveBestTime(state.level, currentTime);
+      if (!state.isMusicMuted) MusicPlayer.play();
     }
-  }, [state.won, state.lost]);
+  }, [state.won, state.lost, saveBestTime, state.level, state.isMusicMuted]);
 
   const totalMines = getMineCount(state.level);
   const flagsLeft = totalMines - flagsUsed(state.board);
@@ -156,7 +99,7 @@ const CasualGameScreen = ({ navigation, route }) => {
 
   return (
     <ImageBackground
-      source={require('../assets/images/teladejogo4.png')}
+      source={require('../assets/images/teladejogo.png')}
       style={styles.background}
     >
       <View style={styles.container}>
@@ -166,24 +109,20 @@ const CasualGameScreen = ({ navigation, route }) => {
             onNewGame={handleNewGame}
             onExit={handleExit}
             timerRef={timerRef}
-            onPause={openMenu}
+            onPause={() => {
+              playButtonSound();
+              timerRef.current?.stop();
+              MusicPlayer.pause();
+              setMenuVisible(true);
+            }}
           />
         </View>
         <View style={styles.boardContainer}>
-          <View
-            style={[
-              styles.board,
-              { width: params.boardSize, height: params.boardSize },
-            ]}
-          >
+          <View style={[styles.board, { width: boardSize, height: boardSize }]}>
             <MineField
               board={state.board}
-              onOpenField={(row, column) =>
-                dispatch({ type: 'OPEN_FIELD', row, column })
-              }
-              onSelectField={(row, column) =>
-                dispatch({ type: 'SELECT_FIELD', row, column })
-              }
+              onOpenField={(row, column) => dispatch({ type: 'OPEN_FIELD', row, column })}
+              onSelectField={(row, column) => dispatch({ type: 'SELECT_FIELD', row, column })}
               blockSize={blockSize}
             />
           </View>
@@ -205,35 +144,25 @@ const CasualGameScreen = ({ navigation, route }) => {
             reducedTransparencyFallbackColor="white"
           />
           <Portal>
-            <Dialog
-              visible={menuVisible}
-              onDismiss={closeMenu}
-              style={styles.dialogContainer}
-            >
+            <Dialog visible={menuVisible} onDismiss={() => setMenuVisible(false)} style={styles.dialogContainer}>
               <LinearGradient colors={['#222', 'black']} style={styles.menu}>
-                <Dialog.Title style={styles.containerTitle}>Pausado</Dialog.Title>
+                <Dialog.Title style={styles.containerTitle}>Em pause</Dialog.Title>
                 <Dialog.Content>
                   <View style={styles.buttonContainer}>
                     <TouchableOpacity onPress={handleNewGame}>
-                      <LinearGradient
-                        colors={['#4cd137', '#009432']}
-                        style={styles.button}
-                      >
+                      <LinearGradient colors={['#4cd137', '#009432']} style={styles.button}>
                         <Text style={styles.textButtonMenu}>Novo Jogo</Text>
                       </LinearGradient>
                     </TouchableOpacity>
                     <TouchableOpacity
                       onPress={() => {
                         playButtonSound();
-                        MusicPlayer.play(); // Retomar a música antes de sair
+                        if (!state.isMusicMuted) MusicPlayer.play();
                         setMenuVisible(false);
                         navigation.navigate('Home');
                       }}
                     >
-                      <LinearGradient
-                        colors={['#eb4d4b', 'red']}
-                        style={styles.button}
-                      >
+                      <LinearGradient colors={['#eb4d4b', 'red']} style={styles.button}>
                         <Text style={styles.textButtonMenu}>Menu Principal</Text>
                       </LinearGradient>
                     </TouchableOpacity>
@@ -264,9 +193,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  board: {
-    // Seus estilos para o tabuleiro
-  },
   dialogContainer: {
     backgroundColor: 'transparent',
     shadowColor: 'transparent',
@@ -275,13 +201,15 @@ const styles = StyleSheet.create({
   menu: {
     borderRadius: 20,
     width: screenWidth * 0.8,
+    height: screenWidth * 0.5,
     alignSelf: 'center',
   },
   containerTitle: {
     color: 'white',
-    fontSize: screenWidth * 0.05,
+    fontSize: screenWidth * 0.046,
     fontFamily: 'SpicyRice-Regular',
     textAlign: 'center',
+    marginTop: screenHeight * 0.02,
   },
   buttonContainer: {
     alignItems: 'center',

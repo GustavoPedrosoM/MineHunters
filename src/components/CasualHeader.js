@@ -69,14 +69,14 @@ const styles = StyleSheet.create({
   timerContainer: {
     alignItems: 'center',
     borderRadius: 10,
-    paddingVertical: screenHeight * 0.005,
+    paddingVertical: screenHeight * 0.013,
     paddingHorizontal: screenWidth * 0.03,
   },
   buttonPause: {
     alignItems: 'center',
     justifyContent: 'center',
     borderRadius: 10,
-    paddingVertical: screenHeight * 0.006,
+    paddingVertical: screenHeight * 0.005,
     paddingHorizontal: screenWidth * 0.03,
   },
 });
