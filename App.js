@@ -1,18 +1,15 @@
-// src/App.js
-
 import React, { useEffect } from 'react';
+import { AppState } from 'react-native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { NavigationContainer } from '@react-navigation/native';
 import { Provider as PaperProvider, DefaultTheme } from 'react-native-paper';
+import Orientation from 'react-native-orientation-locker';
+
 import { GameProvider } from './src/context/GameContext';
-
-import Orientation from 'react-native-orientation-locker'; // Importar a biblioteca de orientação
-
 import InitialScreen from './src/screens/InitialScreen';
 import GameScreen from './src/screens/CasualGameScreen';
 import CompetitiveGameScreen from './src/screens/CompetitiveGameScreen';
-
-import MusicPlayer from './src/MusicPlayer'; // Importar o MusicPlayer
+import MusicPlayer from './src/MusicPlayer';
 
 const theme = {
   ...DefaultTheme,
@@ -34,9 +31,22 @@ const App = () => {
     // Iniciar a música ao montar o componente
     MusicPlayer.play();
 
-    // Limpar a orientação e liberar recursos quando o componente for desmontado
+    const handleAppStateChange = (nextAppState) => {
+      if (nextAppState === 'active') {
+        // Retomar a música quando o app volta a ser ativo
+        MusicPlayer.play();
+      } else if (nextAppState.match(/inactive|background/)) {
+        // Pausar a música quando o app vai para o segundo plano
+        MusicPlayer.pause();
+      }
+    };
+
+    // Adicionar o listener para monitorar mudanças no estado do aplicativo
+    const appStateListener = AppState.addEventListener('change', handleAppStateChange);
+
+    // Limpar listener e liberar recursos ao desmontar o componente
     return () => {
-      Orientation.unlockAllOrientations();
+      appStateListener.remove();
       MusicPlayer.release();
     };
   }, []);

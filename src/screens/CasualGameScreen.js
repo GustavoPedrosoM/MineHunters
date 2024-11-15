@@ -42,12 +42,14 @@ const CasualGameScreen = ({ navigation, route }) => {
   }, []);
 
   const playButtonSound = useCallback(() => {
-    buttonPressSoundRef.current?.stop(() => {
-      buttonPressSoundRef.current?.play((success) => {
-        if (!success) console.log('Erro ao tocar o som');
+    if (!state.isButtonSoundMuted && buttonPressSoundRef.current) {
+      buttonPressSoundRef.current.stop(() => {
+        buttonPressSoundRef.current.play((success) => {
+          if (!success) console.log('Erro ao tocar o som');
+        });
       });
-    });
-  }, []);
+    }
+  }, [state.isButtonSoundMuted]);
 
   useEffect(() => {
     if (!gameStarted) {
@@ -92,6 +94,14 @@ const CasualGameScreen = ({ navigation, route }) => {
       if (!state.isMusicMuted) MusicPlayer.play();
     }
   }, [state.won, state.lost, saveBestTime, state.level, state.isMusicMuted]);
+
+  // Adicionar este useEffect para reiniciar o timer e a música quando o menu é fechado
+  useEffect(() => {
+    if (!menuVisible) {
+      timerRef.current?.start();
+      if (!state.isMusicMuted) MusicPlayer.play();
+    }
+  }, [menuVisible, state.isMusicMuted]);
 
   const totalMines = getMineCount(state.level);
   const flagsLeft = totalMines - flagsUsed(state.board);
@@ -144,7 +154,11 @@ const CasualGameScreen = ({ navigation, route }) => {
             reducedTransparencyFallbackColor="white"
           />
           <Portal>
-            <Dialog visible={menuVisible} onDismiss={() => setMenuVisible(false)} style={styles.dialogContainer}>
+            <Dialog
+              visible={menuVisible}
+              onDismiss={() => setMenuVisible(false)}
+              style={styles.dialogContainer}
+            >
               <LinearGradient colors={['#222', 'black']} style={styles.menu}>
                 <Dialog.Title style={styles.containerTitle}>Em pause</Dialog.Title>
                 <Dialog.Content>
@@ -201,8 +215,9 @@ const styles = StyleSheet.create({
   menu: {
     borderRadius: 20,
     width: screenWidth * 0.8,
-    height: screenWidth * 0.5,
+    height: screenHeight * 0.4,
     alignSelf: 'center',
+    justifyContent: 'center'
   },
   containerTitle: {
     color: 'white',

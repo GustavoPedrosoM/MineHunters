@@ -40,12 +40,14 @@ const CompetitiveHeader = ({
   }, []);
 
   const playButtonSound = useCallback(() => {
-    buttonPressSoundRef.current?.stop(() => {
-      buttonPressSoundRef.current?.play((success) => {
-        if (!success) console.log('Erro ao tocar o som');
+    if (!state.isButtonSoundMuted && buttonPressSoundRef.current) {
+      buttonPressSoundRef.current.stop(() => {
+        buttonPressSoundRef.current.play((success) => {
+          if (!success) console.log('Erro ao tocar o som');
+        });
       });
-    });
-  }, []);
+    }
+  }, [state.isButtonSoundMuted]);
 
   const openMenu = () => {
     if (timerRef.current && (ranking === 'Especialista' || ranking === 'Rei do Campo Minado')) {
@@ -199,8 +201,9 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     overflow: 'hidden',
     width: screenWidth * 0.8,
-    height: screenWidth * 0.5,
+    height: screenHeight * 0.4,
     alignSelf: 'center',
+    justifyContent: 'center',
   },
   containerTitle: {
     color: 'white',

@@ -9,7 +9,7 @@ import CompetitiveHeader from '../components/CompetitiveHeader';
 import MineField from '../components/MineField';
 import GameOverDialog from '../components/GameOverDialog';
 import RankingPromotionDialog from '../components/RankingPromotionDialog';
-import { flagsUsed, getMineCount, getBlockSize, boardSize } from '../functions';
+import { flagsUsed, getMineCount, getBlockSize, boardSize, getLevelFromRanking } from '../functions';
 import MusicPlayer from '../MusicPlayer';
 
 const CompetitiveGameScreen = ({ navigation }) => {
@@ -18,6 +18,11 @@ const CompetitiveGameScreen = ({ navigation }) => {
   const appState = useRef(AppState.currentState);
   const [gameStarted, setGameStarted] = useState(false);
   const buttonPressSoundRef = useRef(null);
+
+   // Use o ranking para definir o nível no modo competitivo
+   const level =
+   state.mode === 'competitivo' ? getLevelFromRanking(state.ranking) : state.level;
+
 
   useEffect(() => {
     Sound.setCategory('Playback');
@@ -31,12 +36,14 @@ const CompetitiveGameScreen = ({ navigation }) => {
   }, []);
 
   const playButtonSound = useCallback(() => {
-    buttonPressSoundRef.current?.stop(() => {
-      buttonPressSoundRef.current?.play((success) => {
-        if (!success) console.log('Erro ao tocar o som');
+    if (!state.isButtonSoundMuted && buttonPressSoundRef.current) {
+      buttonPressSoundRef.current.stop(() => {
+        buttonPressSoundRef.current.play((success) => {
+          if (!success) console.log('Erro ao tocar o som');
+        });
       });
-    });
-  }, []);
+    }
+  }, [state.isButtonSoundMuted]);
 
   useEffect(() => {
     try {
@@ -90,10 +97,7 @@ const CompetitiveGameScreen = ({ navigation }) => {
       appState.current = nextAppState;
     };
 
-    const subscription = AppState.addEventListener(
-      'change',
-      handleAppStateChange
-    );
+    const subscription = AppState.addEventListener('change', handleAppStateChange);
 
     return () => subscription.remove();
   }, [state.ranking, state.won, state.lost, dispatch]);
@@ -115,7 +119,15 @@ const CompetitiveGameScreen = ({ navigation }) => {
     }
     if (!state.isMusicMuted) MusicPlayer.play();
     navigation.navigate('Home');
-  }, [playButtonSound, navigation, state.ranking, state.won, state.lost, state.isMusicMuted, dispatch]);
+  }, [
+    playButtonSound,
+    navigation,
+    state.ranking,
+    state.won,
+    state.lost,
+    state.isMusicMuted,
+    dispatch,
+  ]);
 
   useEffect(() => {
     if (state.won || state.lost) {
@@ -126,8 +138,7 @@ const CompetitiveGameScreen = ({ navigation }) => {
 
   const handleCountdownFinish = useCallback(() => {
     if (
-      (state.ranking === 'Especialista' ||
-        state.ranking === 'Rei do Campo Minado') &&
+      (state.ranking === 'Especialista' || state.ranking === 'Rei do Campo Minado') &&
       state.mode === 'competitivo'
     ) {
       dispatch({ type: 'GAME_OVER_TIME_UP' });
@@ -155,7 +166,7 @@ const CompetitiveGameScreen = ({ navigation }) => {
 
   const totalMines = getMineCount(state.level);
   const flagsLeft = totalMines - flagsUsed(state.board);
-  const blockSize = getBlockSize(state.level);
+  const blockSize = getBlockSize(level);
 
   const countdownTime =
     state.ranking === 'Especialista'
@@ -166,11 +177,11 @@ const CompetitiveGameScreen = ({ navigation }) => {
 
   const victoriesNeeded =
     state.previousRanking === 'Iniciante'
-      ? 1
+      ? 5
       : state.previousRanking === 'Amador'
-      ? 1
+      ? 7
       : state.previousRanking === 'Especialista'
-      ? 1
+      ? 7
       : 0;
 
   return (
@@ -192,12 +203,7 @@ const CompetitiveGameScreen = ({ navigation }) => {
           />
         </View>
         <View style={styles.boardContainer}>
-          <View
-            style={[
-              styles.board,
-              { width: boardSize, height: boardSize },
-            ]}
-          >
+          <View style={[styles.board, { width: boardSize, height: boardSize }]}>
             <MineField
               board={state.board}
               onOpenField={(row, column) =>
@@ -240,6 +246,12 @@ const styles = StyleSheet.create({
   headerContainer: {
     flex: 1,
     justifyContent: 'flex-start',
+  },
+  board: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'transparent',
+    elevation: 5, // Para dar destaque ao tabuleiro
   },
   boardContainer: {
     flex: 9,

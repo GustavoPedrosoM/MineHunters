@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { View, StyleSheet, Text, TouchableWithoutFeedback } from 'react-native';
 import Mine from './Mine';
 import Flag from './Flag';
 import Sound from 'react-native-sound';
+import { GameContext } from '../context/GameContext'; // Importar GameContext
 
 // Configurar a categoria de som
 Sound.setCategory('Playback');
@@ -20,8 +21,10 @@ const buttonPressSound = new Sound(
 const Field = React.memo((props) => {
   const { mined, opened, nearMines, exploded, flagged, onOpen, onSelect, blockSize } = props;
 
+  const { state } = useContext(GameContext); // Obter o estado do contexto
+
   const playButtonSound = () => {
-    if (buttonPressSound) {
+    if (!state.isButtonSoundMuted && buttonPressSound) {
       buttonPressSound.stop(() => {
         buttonPressSound.play((success) => {
           if (!success) {
