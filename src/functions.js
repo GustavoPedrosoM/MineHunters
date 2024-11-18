@@ -10,32 +10,34 @@ const levelDimensions = {
 }; // colunas e linhas do tabuleiro de acordo com os níveis
 
 // Funções utilitárias para tamanhos de blocos e nível
+
+//calcula o tamanho de cada bloco para o tabuleiro 
 const getBlockSize = (level) => {
   const { columns, rows } = levelDimensions[level] || { columns: 6, rows: 6 };
-  console.log(`Tamanho do bloco calculado: ${boardSize / Math.max(rows, columns)}`);
   return boardSize / Math.max(rows, columns);
 };
 
+// retorna uma quantidade de colunas do tabuleiro com base no nível de dificuldade
 const getColumsAmount = (level) => {
-  console.log(`Número de colunas para nível ${level}: ${levelDimensions[level]?.columns || 6}`);
   return levelDimensions[level]?.columns || 6;
 };
+
+// retorna o número de linhas com base no nível de dificuldade
 const getRowsAmount = (level) => {
-  console.log(`Número de linhas para nível ${level}: ${levelDimensions[level]?.rows || 6}`);
   return levelDimensions[level]?.rows || 6;
 };
 
+// estipula o número de minas do tabuleiro para cada nível 
 const getMineCount = (level) => {
   const mineCount = level === 0.1 ? 5 : level === 0.2 ? 12 : level === 0.3 ? 20 : Math.ceil(getColumsAmount(level) * getRowsAmount(level) * level);
-  console.log(`Número de minas para nível ${level}: ${mineCount}`);
   return mineCount;
 };
 
-// Funções de criação e configuração do tabuleiro
+// Função cria e retorna um tabuleiro vazio
 const createBoard = (rows, columns) => {
   console.log(`Criando tabuleiro com ${rows} linhas e ${columns} colunas`);
   return Array.from({ length: rows }, (_, row) =>
-    Array.from({ length: columns }, (_, column) => ({
+    Array.from({ length: columns }, (_, column) => ({ // criando uma matriz bidimensional 
       row,
       column,
       opened: false,
@@ -47,12 +49,14 @@ const createBoard = (rows, columns) => {
   );
 };
 
+// espalha as minas pelo tabuleiro 
 const spreadMines = (board, minesAmount, excludedPositions = []) => {
-  console.log(`Espalhando ${minesAmount} minas, com exclusão de posições: ${excludedPositions.map(pos => `(${pos.row},${pos.column})`)}`);
-  const flatBoard = board.flat();
+  console.log(`Espalhando ${minesAmount} minas`);
+  const flatBoard = board.flat(); // achata o tabuleiro
   const excludeKeys = new Set(excludedPositions.map(pos => `${pos.row},${pos.column}`));
   let minesPlanted = 0;
 
+  // implanta as minas aleatóriamente 
   while (minesPlanted < minesAmount) {
     const randomIndex = Math.floor(Math.random() * flatBoard.length);
     const cell = flatBoard[randomIndex];
@@ -66,14 +70,15 @@ const spreadMines = (board, minesAmount, excludedPositions = []) => {
   }
 };
 
+// combina createBoard com spreadMines para criar um tabuleiro completo
 const createMinedBoard = (rows, columns, minesAmount) => {
-  console.log(`Criando tabuleiro com minas: ${minesAmount} minas, ${rows}x${columns} dimensões`);
   const board = createBoard(rows, columns);
   spreadMines(board, minesAmount);
   return board;
 };
 
-const calculateNearMines = (board) => {
+// percorre cada campo do tabuleiro, filtra os viznhos com minas e atualiza o "NearMines" de cada célula 
+const calculateNearMines = (board) => { 
   console.log('Calculando minas próximas para cada campo');
   for (let row = 0; row < board.length; row++) {
     for (let column = 0; column < board[row].length; column++) {
@@ -85,16 +90,17 @@ const calculateNearMines = (board) => {
 };
 
 // Funções de manipulação de estado do tabuleiro
+
+// clona o tabuleiro 
 const cloneBoard = (board) => {
-  console.log('Clonando o tabuleiro');
-  return board.map(rows => rows.map(field => ({ ...field })));
+  return board.map(rows => rows.map(field => ({ ...field }))); // cria uma nova matriz de objetos
 };
 
+// abre um campo no tabuleiro, se não há minas próximas, abre recursivamente outros campos até um limite de profundidade
 const openField = (board, row, column, depth = Infinity) => {
   const field = board[row][column];
   if (!field.opened && !field.flagged) {
     field.opened = true;
-    console.log(`Campo aberto em (${row}, ${column}) com profundidade ${depth}`);
 
     if (field.mined) {
       field.exploded = true;
@@ -105,6 +111,7 @@ const openField = (board, row, column, depth = Infinity) => {
   }
 };
 
+// percorre uma matriz 3x3 em volta de uma célula e retorna os vizinhos em uma lista
 const getNeighbors = (board, row, column) => {
   const neighbors = [];
   for (let r = row - 1; r <= row + 1; r++) {
@@ -124,27 +131,32 @@ const getNeighbors = (board, row, column) => {
   return neighbors;
 };
 
+// retorna uma lista de todos os campos do tabuleiro
 const fields = (board) => board.flat();
 
+// verifica usando fields, se há alguma célula do campo marcada com exploded
 const hadExplosion = (board) => {
   const explosionOccurred = fields(board).some(field => field.exploded);
-  console.log(`Explosão ocorreu: ${explosionOccurred}`);
   return explosionOccurred;
 };
 
+// determina se algum campo está pendente, 
+// se há algum campo com mina que não foi marcado com uma bandeira ou algum campo sem mina que não foi aberto
 const pending = (field) => (field.mined && !field.flagged) || (!field.mined && !field.opened);
 
+// determina se o jogador venceu o jogo
 const wonGame = (board) => {
   const won = fields(board).every(field => !pending(field));
   console.log(`Condição de vitória verificada: ${won}`);
   return won;
 };
 
+// mostra todas as minas do jogo
 const showMines = (board) => {
-  console.log('Revelando todas as minas');
   fields(board).filter(field => field.mined).forEach(field => (field.opened = true));
 };
 
+// alterna o estado da bandeira 
 const invertFlag = (board, row, column) => {
   const field = board[row][column];
   if (!field.opened) {
@@ -153,12 +165,14 @@ const invertFlag = (board, row, column) => {
   }
 };
 
+// conta o número de bandeiras usadas no tabuleiro
 const flagsUsed = (board) => {
   const usedFlags = fields(board).filter(field => field.flagged).length;
   console.log(`Número de bandeiras usadas: ${usedFlags}`);
   return usedFlags;
 };
 
+// encontra uma posição segura para abrir o tabuleiro 
 const findSafePosition = (board) => {
   const rows = board.length;
   const columns = board[0].length;
@@ -167,19 +181,17 @@ const findSafePosition = (board) => {
     row = Math.floor(Math.random() * rows);
     column = Math.floor(Math.random() * columns);
   } while (board[row][column].mined || board[row][column].nearMines > 0);
-  console.log(`Posição segura encontrada em (${row}, ${column})`);
   return { row, column };
 };
 
+// mapeia os rankings do modo competitivo retornando valores de 0.1, 0.2 ou  0.3
 const getLevelFromRanking = (ranking) => {
   if (ranking === 'Iniciante') return 0.1; // Fácil
   if (ranking === 'Amador') return 0.2; // Intermediário
   return 0.3; // Difícil para "Especialista" e "Rei do Campo Minado"
 };
 
-// Exportação das Funções
 export {
-  boardSize,
   getBlockSize,
   getColumsAmount,
   getRowsAmount,

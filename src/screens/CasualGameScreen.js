@@ -1,13 +1,5 @@
-// src/screens/CasualGameScreen.js
-
 import React, { useContext, useEffect, useRef, useState, useCallback } from 'react';
-import {
-  View,
-  StyleSheet,
-  ImageBackground,
-  Dimensions,
-  TouchableOpacity,
-} from 'react-native';
+import { View, StyleSheet, ImageBackground, Dimensions, TouchableOpacity, } from 'react-native';
 import { Portal, Dialog, Text } from 'react-native-paper';
 import { BlurView } from '@react-native-community/blur';
 import LinearGradient from 'react-native-linear-gradient';

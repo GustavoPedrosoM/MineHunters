@@ -1,26 +1,16 @@
-// src/screens/InitialScreen.js
-
 import React, { useState, useCallback, useContext, useEffect, useRef } from 'react';
-import {
-  ImageBackground,
-  StyleSheet,
-  TouchableOpacity,
-  View,
-  Dimensions,
-  Text,
-} from 'react-native';
+import { ImageBackground, StyleSheet, TouchableOpacity,  View, Dimensions, Text, } from 'react-native';
 import { Portal, Dialog, DefaultTheme, Switch } from 'react-native-paper';
 import LinearGradient from 'react-native-linear-gradient';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import * as Animatable from 'react-native-animatable';
 import Sound from 'react-native-sound';
-import { Slider } from 'react-native-elements'; // Importar o Slider do react-native-elements
+import { Slider } from 'react-native-elements'; 
 
 import { GameContext } from '../context/GameContext';
 import { formatTime } from '../components/Timer';
-import MusicPlayer from '../MusicPlayer'; // Importar o MusicPlayer
+import MusicPlayer from '../MusicPlayer'; 
 
-// Criar o tema personalizado
 const customTheme = {
   ...DefaultTheme,
   colors: {
@@ -35,7 +25,7 @@ const InitialScreen = ({ navigation }) => {
   const [showCompetitiveMenu, setShowCompetitiveMenu] = useState(false);
   const [showRecords, setShowRecords] = useState(false);
   const [showModeSelection, setShowModeSelection] = useState(false);
-  const [showSettingsMenu, setShowSettingsMenu] = useState(false); // Estado para o menu de configurações
+  const [showSettingsMenu, setShowSettingsMenu] = useState(false); 
 
   // Estados para controlar as animações
   const [animationType, setAnimationType] = useState('lightSpeedOut');
@@ -44,7 +34,7 @@ const InitialScreen = ({ navigation }) => {
   const buttonPressSoundRef = useRef(null);
 
   useEffect(() => {
-    // Inicializar o som quando o componente for montado
+    // Inicializar o som quando montar o componente
     Sound.setCategory('Playback');
     buttonPressSoundRef.current = new Sound(
       require('../assets/sounds/button-press.mp3'),
@@ -64,7 +54,7 @@ const InitialScreen = ({ navigation }) => {
   }, []);
 
   const playButtonSound = useCallback(() => {
-    if (state.isButtonSoundMuted) return; // Não tocar se estiver mutado
+    if (state.isButtonSoundMuted) return; // garantir que não toque quando estiver mutado 
     if (buttonPressSoundRef.current) {
       buttonPressSoundRef.current.stop(() => {
         buttonPressSoundRef.current.play((success) => {
@@ -76,9 +66,10 @@ const InitialScreen = ({ navigation }) => {
     }
   }, [state.isButtonSoundMuted]);
 
-  const onLevelSelected = useCallback(
+  // animação de todos os menus na tela inicial
+  const onLevelSelected = useCallback( 
     (level) => {
-      playButtonSound(); // Tocar som ao selecionar o nível
+      playButtonSound(); 
       setAnimationType('lightSpeedOut');
       setTimeout(() => {
         setShowLevelSelection(false);
@@ -89,14 +80,14 @@ const InitialScreen = ({ navigation }) => {
     [dispatch, navigation, playButtonSound]
   );
 
-  const startCompetitiveMode = useCallback(() => {
-    playButtonSound(); // Tocar som ao iniciar o modo competitivo
+  const startCompetitiveMode = useCallback(() => { 
+    playButtonSound();
     setAnimationType('slideInUp');
     setShowCompetitiveMenu(true);
   }, [playButtonSound]);
 
   const handleStartCompetitiveGame = useCallback(() => {
-    playButtonSound(); // Tocar som ao iniciar o jogo competitivo
+    playButtonSound(); 
     setAnimationType('lightSpeedOut');
     setTimeout(() => {
       dispatch({ type: 'SET_MODE', mode: 'competitivo' });
@@ -106,7 +97,7 @@ const InitialScreen = ({ navigation }) => {
   }, [dispatch, navigation, playButtonSound]);
 
   const closeCompetitiveMenu = useCallback(() => {
-    playButtonSound(); // Tocar som ao fechar o menu competitivo
+    playButtonSound(); 
     setAnimationType('lightSpeedOut');
     setTimeout(() => {
       setShowCompetitiveMenu(false);
@@ -114,7 +105,7 @@ const InitialScreen = ({ navigation }) => {
   }, [playButtonSound]);
 
   const closeModeSelection = useCallback(() => {
-    playButtonSound(); // Tocar som ao fechar a seleção de modo
+    playButtonSound(); 
     setAnimationType('lightSpeedOut');
     setTimeout(() => {
       setShowModeSelection(false);
@@ -122,13 +113,13 @@ const InitialScreen = ({ navigation }) => {
   }, [playButtonSound]);
 
   const openModeSelection = useCallback(() => {
-    playButtonSound(); // Tocar som ao abrir a seleção de modo
+    playButtonSound(); 
     setAnimationType('slideInUp');
     setShowModeSelection(true);
   }, [playButtonSound]);
 
   const closeLevelSelection = useCallback(() => {
-    playButtonSound(); // Tocar som ao fechar a seleção de nível
+    playButtonSound(); 
     setAnimationType('lightSpeedOut');
     setTimeout(() => {
       setShowLevelSelection(false);
@@ -136,13 +127,13 @@ const InitialScreen = ({ navigation }) => {
   }, [playButtonSound]);
 
   const openLevelSelection = useCallback(() => {
-    playButtonSound(); // Tocar som ao abrir a seleção de nível
+    playButtonSound(); 
     setAnimationType('slideInUp');
     setShowLevelSelection(true);
   }, [playButtonSound]);
 
   const closeRecords = useCallback(() => {
-    playButtonSound(); // Tocar som ao fechar o menu de recordes
+    playButtonSound(); 
     setAnimationType('lightSpeedOut');
     setTimeout(() => {
       setShowRecords(false);
@@ -150,26 +141,26 @@ const InitialScreen = ({ navigation }) => {
   }, [playButtonSound]);
 
   const openRecords = useCallback(() => {
-    playButtonSound(); // Tocar som ao abrir o menu de recordes
+    playButtonSound(); 
     setAnimationType('slideInUp');
     setShowRecords(true);
   }, [playButtonSound]);
 
   const openSettingsMenu = useCallback(() => {
-    playButtonSound(); // Tocar som ao abrir o menu de configurações
+    playButtonSound(); 
     setAnimationType('slideInUp');
     setShowSettingsMenu(true);
   }, [playButtonSound]);
 
   const closeSettingsMenu = useCallback(() => {
-    playButtonSound(); // Tocar som ao fechar o menu de configurações
+    playButtonSound(); 
     setAnimationType('lightSpeedOut');
     setTimeout(() => {
       setShowSettingsMenu(false);
     }, 500);
   }, [playButtonSound]);
 
-  useEffect(() => {
+  useEffect(() => { // armazenar os recordes das 3 dificuldades de jogo 
     const loadRecords = async () => {
       await loadBestTime(0.1);
       await loadBestTime(0.2);
@@ -178,7 +169,7 @@ const InitialScreen = ({ navigation }) => {
     loadRecords();
   }, []);
 
-  // Atualizar o volume da música e o estado de mute quando as configurações mudarem
+  // Atualizar o volume da musica e o estado de mute quando as configurações mudarem
   useEffect(() => {
     MusicPlayer.setVolume(state.musicVolume);
   }, [state.musicVolume]);
@@ -191,22 +182,17 @@ const InitialScreen = ({ navigation }) => {
     }
   }, [state.isMusicMuted]);
 
-  // Obter as dimensões da tela
-  const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
-
   return (
     <ImageBackground
       source={require('../assets/images/telainicial.png')}
-      style={styles.background}
-    >
+      style={styles.background}>
       <View style={styles.headerContainer}>
         <TouchableOpacity
           style={styles.iconButton}
           onPress={() => {
-            playButtonSound(); // Tocar som ao pressionar o botão
+            playButtonSound(); 
             openSettingsMenu();
-          }}
-        >
+          }}>
           <LinearGradient colors={['#f9ca24', '#EE5A24']} style={styles.ConfigIcon}>
             <Icon name="cog" size={35} color="white" />
             <Text style={styles.iconsText}>Configurações</Text>
@@ -216,10 +202,9 @@ const InitialScreen = ({ navigation }) => {
         <TouchableOpacity
           style={styles.iconButton}
           onPress={() => {
-            playButtonSound(); // Tocar som ao pressionar o botão
+            playButtonSound(); 
             openRecords();
-          }}
-        >
+          }}>
           <LinearGradient colors={['#f9ca24', '#EE5A24']} style={styles.RecordIcon}>
             <Icon name="timer" size={35} color="white" />
             <Text style={styles.iconsText}>Recordes</Text>
@@ -232,31 +217,27 @@ const InitialScreen = ({ navigation }) => {
           {/* Botão Jogar */}
           <TouchableOpacity
             onPress={() => {
-              playButtonSound(); // Tocar som ao pressionar o botão
+              playButtonSound(); 
               openModeSelection();
-            }}
-          >
+            }}>
             <LinearGradient style={styles.playButton} colors={['#f9ca24', '#EE5A24']}>
               <Text style={styles.textPlayButton}>Iniciar Jogo</Text>
             </LinearGradient>
           </TouchableOpacity>
         </View>
 
-        {/* Menus com Animações */}
+        {/* Menu de Seleção de Modo */}
         <Portal>
-          {/* Menu de Seleção de Modo */}
           {showModeSelection && (
             <Animatable.View
               animation={animationType}
               duration={350}
-              style={styles.animatableContainer}
-            >
+              style={styles.animatableContainer}>
               <Dialog
                 onDismiss={closeModeSelection}
                 visible={showModeSelection}
                 style={styles.dialogStyle}
-                theme={customTheme} // Aplicar o tema personalizado
-              >
+                theme={customTheme} >
                 <Dialog.Content style={{ padding: 0 }}>
                   <LinearGradient colors={['#222', 'black']} style={styles.levelDialog}>
                     <Dialog.Title style={styles.containerTitle}>
@@ -265,34 +246,30 @@ const InitialScreen = ({ navigation }) => {
                     <View style={styles.buttonContainer}>
                       <TouchableOpacity
                         onPress={() => {
-                          playButtonSound(); // Tocar som ao pressionar o botão
+                          playButtonSound(); 
                           closeModeSelection();
                           setTimeout(() => {
                             openLevelSelection();
                           }, 500);
-                        }}
-                      >
+                        }}>
                         <LinearGradient
                           colors={['#4cd137', '#009432']}
-                          style={[styles.buttonBaseMenu, styles.levelButton]}
-                        >
+                          style={[styles.buttonBaseMenu, styles.levelButton]}>
                           <Text style={styles.textBase}>Modo Casual</Text>
                         </LinearGradient>
                       </TouchableOpacity>
 
                       <TouchableOpacity
                         onPress={() => {
-                          playButtonSound(); // Tocar som ao pressionar o botão
+                          playButtonSound();
                           closeModeSelection();
                           setTimeout(() => {
                             startCompetitiveMode();
                           }, 500);
-                        }}
-                      >
+                        }}>
                         <LinearGradient
                           colors={['#eb4d4b', 'red']}
-                          style={[styles.buttonBaseMenu, styles.levelButton]}
-                        >
+                          style={[styles.buttonBaseMenu, styles.levelButton]}>
                           <Text style={styles.textBase}>Modo Competitivo</Text>
                         </LinearGradient>
                       </TouchableOpacity>
@@ -308,14 +285,12 @@ const InitialScreen = ({ navigation }) => {
             <Animatable.View
               animation={animationType}
               duration={350}
-              style={styles.animatableContainer}
-            >
+              style={styles.animatableContainer}>
               <Dialog
                 onDismiss={closeLevelSelection}
                 visible={showLevelSelection}
                 style={styles.dialogStyle}
-                theme={customTheme} // Aplicar o tema personalizado
-              >
+                theme={customTheme} >
                 <Dialog.Content style={{ padding: 0 }}>
                   <LinearGradient colors={['#222', 'black']} style={styles.levelDialog}>
                     <Dialog.Title style={styles.containerTitle}>
@@ -324,42 +299,36 @@ const InitialScreen = ({ navigation }) => {
                     <View style={styles.buttonContainer}>
                       <TouchableOpacity
                         onPress={() => {
-                          playButtonSound(); // Tocar som ao pressionar o botão
+                          playButtonSound(); 
                           onLevelSelected(0.1);
-                        }}
-                      >
+                        }}>
                         <LinearGradient
                           colors={['#4cd137', '#009432']}
-                          style={[styles.buttonBaseMenu, styles.levelButton]}
-                        >
+                          style={[styles.buttonBaseMenu, styles.levelButton]}>
                           <Text style={styles.textBase}>Fácil</Text>
                         </LinearGradient>
                       </TouchableOpacity>
 
                       <TouchableOpacity
                         onPress={() => {
-                          playButtonSound(); // Tocar som ao pressionar o botão
+                          playButtonSound(); 
                           onLevelSelected(0.2);
-                        }}
-                      >
+                        }}>
                         <LinearGradient
                           colors={['#FFC312', '#F79F1F']}
-                          style={[styles.buttonBaseMenu, styles.levelButton]}
-                        >
+                          style={[styles.buttonBaseMenu, styles.levelButton]}>
                           <Text style={styles.textBase}>Intermediário</Text>
                         </LinearGradient>
                       </TouchableOpacity>
 
                       <TouchableOpacity
                         onPress={() => {
-                          playButtonSound(); // Tocar som ao pressionar o botão
+                          playButtonSound(); 
                           onLevelSelected(0.3);
-                        }}
-                      >
+                        }}>
                         <LinearGradient
                           colors={['#eb4d4b', 'red']}
-                          style={[styles.buttonBaseMenu, styles.levelButton]}
-                        >
+                          style={[styles.buttonBaseMenu, styles.levelButton]}>
                           <Text style={styles.textBase}>Difícil</Text>
                         </LinearGradient>
                       </TouchableOpacity>
@@ -375,14 +344,12 @@ const InitialScreen = ({ navigation }) => {
             <Animatable.View
               animation={animationType}
               duration={350}
-              style={styles.animatableContainer}
-            >
+              style={styles.animatableContainer}>
               <Dialog
                 onDismiss={closeCompetitiveMenu}
                 visible={showCompetitiveMenu}
                 style={styles.dialogStyle}
-                theme={customTheme} // Aplicar o tema personalizado
-              >
+                theme={customTheme} >
                 <Dialog.Content style={{ padding: 0 }}>
                   <LinearGradient colors={['#222', 'black']} style={styles.levelDialog}>
                     <Dialog.Title style={styles.containerTitle}>
@@ -391,14 +358,12 @@ const InitialScreen = ({ navigation }) => {
                     <View style={styles.buttonContainer}>
                       <TouchableOpacity
                         onPress={() => {
-                          playButtonSound(); // Tocar som ao pressionar o botão
+                          playButtonSound(); 
                           handleStartCompetitiveGame();
-                        }}
-                      >
+                        }}>
                         <LinearGradient
                           colors={['#4cd137', '#009432']}
-                          style={[styles.buttonBaseMenu, styles.startButton]}
-                        >
+                          style={[styles.buttonBaseMenu, styles.startButton]}>
                           <Text style={styles.textBase}>Iniciar Partida</Text>
                         </LinearGradient>
                       </TouchableOpacity>
@@ -414,14 +379,12 @@ const InitialScreen = ({ navigation }) => {
             <Animatable.View
               animation={animationType}
               duration={350}
-              style={styles.animatableContainer}
-            >
+              style={styles.animatableContainer}>
               <Dialog
                 visible={showRecords}
                 onDismiss={closeRecords}
                 style={styles.dialogStyle}
-                theme={customTheme} // Aplicar o tema personalizado
-              >
+                theme={customTheme}>
                 <LinearGradient colors={['#222', 'black']} style={styles.levelDialog}>
                   <Dialog.Title style={styles.containerTitle}>
                     Recordes do Modo Casual
@@ -447,14 +410,12 @@ const InitialScreen = ({ navigation }) => {
             <Animatable.View
               animation={animationType}
               duration={350}
-              style={styles.animatableContainer}
-            >
+              style={styles.animatableContainer}>
               <Dialog
                 onDismiss={closeSettingsMenu}
                 visible={showSettingsMenu}
                 style={styles.dialogStyle}
-                theme={customTheme} // Aplicar o tema personalizado
-              >
+                theme={customTheme}>
                 <Dialog.Content style={{ padding: 0 }}>
                   <LinearGradient colors={['#222', 'black']} style={styles.levelDialog}>
                     <Dialog.Title style={styles.containerTitle}>
@@ -471,7 +432,6 @@ const InitialScreen = ({ navigation }) => {
                           }}
                         />
                       </View>
-
                       {/* Opção para mutar a música do jogo */}
                       <View style={styles.settingItem}>
                         <Text style={styles.textBase}>Música do Jogo</Text>
@@ -482,8 +442,7 @@ const InitialScreen = ({ navigation }) => {
                           }}
                         />
                       </View>
-
-                      {/* Controle de volume da música usando Slider do react-native-elements */}
+                      {/* Controle de volume da música*/}
                       <View style={styles.settingItem}>
                         <Text style={styles.textBase}>Volume da Música</Text>
                         <Slider
@@ -512,7 +471,7 @@ const InitialScreen = ({ navigation }) => {
   );
 };
 
-// Obter as dimensões da tela
+// Obter as dimensoes da tela
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
 const styles = StyleSheet.create({
@@ -636,7 +595,7 @@ const styles = StyleSheet.create({
     color: 'white',
   },
 
-  // Estilo para o contêiner animável
+  // Estilo para o container de animação
   animatableContainer: {
     flex: 1,
     backgroundColor: 'transparent',

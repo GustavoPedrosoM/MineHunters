@@ -35,6 +35,7 @@ const Field = React.memo((props) => {
     }
   };
 
+  // estilos dos campos fechados, abertos e explodidos
   const styleField = [
     styles.field,
     opened ? styles.opened : styles.regular,
@@ -43,6 +44,7 @@ const Field = React.memo((props) => {
     { width: blockSize, height: blockSize, borderWidth: blockSize / 15 },
   ];
 
+  // atribuindo cor para os números que referenciam a quantidade de minas ao redor de uma célula
   let color = null;
   if (nearMines > 0) {
     if (nearMines === 1) color = '#14c9c3';

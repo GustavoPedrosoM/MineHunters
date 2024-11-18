@@ -8,8 +8,7 @@ import Timer from './Timer';
 import LinearGradient from 'react-native-linear-gradient';
 import { GameContext } from '../context/GameContext';
 
-const Header = ({ flagsLeft, onNewGame, onExit, timerRef, onPause }) => {
-  console.log('Header.js re-render');
+const Header = ({ flagsLeft, timerRef, onPause }) => {
 
   const { state } = useContext(GameContext);
 

@@ -54,7 +54,7 @@ const CompetitiveHeader = ({
       timerRef.current.stop();
     }
     setMenuVisible(true);
-    if (!state.isMusicMuted) MusicPlayer.pause(); // Pausar a música se não estiver em modo mudo
+    if (!state.isMusicMuted) MusicPlayer.pause(); // Pausar a música se não estiver mutada
   };
 
   const closeMenu = () => {
@@ -62,12 +62,12 @@ const CompetitiveHeader = ({
     if (timerRef.current && (ranking === 'Especialista' || ranking === 'Rei do Campo Minado')) {
       timerRef.current.start();
     }
-    if (!state.isMusicMuted) MusicPlayer.play(); // Retomar a música se não estiver em modo mudo
+    if (!state.isMusicMuted) MusicPlayer.play(); // Retomar a música se não estiver mutada
   };
 
   const handleExitFromMenu = () => {
     playButtonSound();
-    if (!state.isMusicMuted) MusicPlayer.play(); // Retomar a música antes de sair se não estiver em modo mudo
+    if (!state.isMusicMuted) MusicPlayer.play(); // Retomar a música antes de sair se não estiver mutada
     onExit();
   };
 

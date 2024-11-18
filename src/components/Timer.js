@@ -37,26 +37,18 @@ const Timer = forwardRef(({ countdown = null, onCountdownFinish }, ref) => {
             }
           });
         }, 1000);
-      } else {
-        console.log('Timer já está rodando');
-      }
+      } 
     },
     stop() {
       if (timerIdRef.current) {
         clearInterval(timerIdRef.current);
         timerIdRef.current = null;
-        console.log('Timer parado');
-      } else {
-        console.log('Timer já está parado');
       }
     },
     reset() {
       if (timerIdRef.current) {
         clearInterval(timerIdRef.current);
         timerIdRef.current = null;
-        console.log('Timer resetado e parado');
-      } else {
-        console.log('Timer resetado');
       }
       setTime(countdown !== null ? countdown : 0);
     },

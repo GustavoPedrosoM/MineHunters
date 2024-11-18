@@ -3,7 +3,6 @@ import { AppState } from 'react-native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { NavigationContainer } from '@react-navigation/native';
 import { Provider as PaperProvider, DefaultTheme } from 'react-native-paper';
-import Orientation from 'react-native-orientation-locker';
 
 import { GameProvider } from './src/context/GameContext';
 import InitialScreen from './src/screens/InitialScreen';
@@ -25,9 +24,6 @@ const Stack = createStackNavigator();
 
 const App = () => {
   useEffect(() => {
-    // Bloquear a orientação em modo vertical
-    Orientation.lockToPortrait();
-
     // Iniciar a música ao montar o componente
     MusicPlayer.play();
 
@@ -41,7 +37,7 @@ const App = () => {
       }
     };
 
-    // Adicionar o listener para monitorar mudanças no estado do aplicativo
+    
     const appStateListener = AppState.addEventListener('change', handleAppStateChange);
 
     // Limpar listener e liberar recursos ao desmontar o componente

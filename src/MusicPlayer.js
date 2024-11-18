@@ -1,5 +1,3 @@
-// src/MusicPlayer.js
-
 import Sound from 'react-native-sound';
 
 class MusicPlayer {
@@ -15,9 +13,6 @@ class MusicPlayer {
         this.music.setNumberOfLoops(-1); // Loop infinito
         this.music.setVolume(1); // Volume inicial
         this.music.play((success) => {
-          if (!success) {
-            console.log('A música não pôde ser reproduzida');
-          }
         });
       });
 
@@ -36,9 +31,6 @@ class MusicPlayer {
   play() {
     if (this.music) {
       this.music.play((success) => {
-        if (!success) {
-          console.log('A música não pôde ser reproduzida');
-        }
       });
     }
   }

@@ -177,11 +177,11 @@ const CompetitiveGameScreen = ({ navigation }) => {
 
   const victoriesNeeded =
     state.previousRanking === 'Iniciante'
-      ? 5
+      ? 1
       : state.previousRanking === 'Amador'
-      ? 7
+      ? 1
       : state.previousRanking === 'Especialista'
-      ? 7
+      ? 1
       : 0;
 
   return (

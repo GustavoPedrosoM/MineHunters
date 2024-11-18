@@ -20,7 +20,6 @@ import {
 const getLevelKey = (level) => {
   const levelKey =
     level === 0.1 ? 'easy' : level === 0.2 ? 'medium' : level === 0.3 ? 'hard' : 'unknown';
-  console.log(`getLevelKey: Nível ${level} definido em ${levelKey}`);
   return levelKey;
 };
 
@@ -57,24 +56,19 @@ const initialState = {
 
 // Gerenciamento de operações do jogo
 const gameReducer = (state, action) => {
-  console.log(`Reducer action: ${action.type}`, action);
-
   // Escolha dos modos de jogo
   switch (action.type) {
     case 'SET_MODE':
-      console.log(`SET_MODE: Modo definido para ${action.mode}`);
+      console.log(`Modo definido para ${action.mode}`);
       return { ...state, mode: action.mode };
 
   // Escolha da dificuldade
     case 'SET_LEVEL':
-      console.log(`SET_LEVEL: Nível definido para ${action.level}`);
+      console.log(`Nível definido para ${action.level}`);
       return { ...state, level: action.level };
 
   // Atualização do melhor tempo de uma determinada dificuldade
     case 'SET_BEST_TIME':
-      console.log(
-        `SET_BEST_TIME: Melhor tempo para ${action.level} atualizado para ${action.time}`
-      );
       return {
         ...state,
         bestTimes: {
@@ -91,9 +85,6 @@ const gameReducer = (state, action) => {
         const cols = getColumsAmount(level);
         const rows = getRowsAmount(level);
         const mines = getMineCount(level);
-        console.log(
-          `NEW_GAME: Iniciando novo jogo com nível ${level}, ${rows} linhas, ${cols} colunas, ${mines} minas`
-        );
       
         // Criar o tabuleiro e espalhar as minas
         let newBoard = createMinedBoard(rows, cols, mines);
@@ -127,28 +118,23 @@ const gameReducer = (state, action) => {
             }
           }
         }
-      
         console.log(
-          `Safe position found at (${safePosition.row}, ${safePosition.column}) after ${attempts} attempts`
+          `Posição segura encontrada em (${safePosition.row}, ${safePosition.column}) depois de ${attempts} tentativas`
         );
       
         // Abrir o campo inicial em posição segura
         const initialDepth = 1; // Profundidade inicial
         openField(newBoard, safePosition.row, safePosition.column, initialDepth);
-        console.log(
-          `Campo inicial aberto em posição segura: (${safePosition.row}, ${safePosition.column})`
-        );
       
-        // Configurar o tempo de contagem regressiva, se aplicável
+        // Configurar o tempo de contagem regressiva para os ultimos rankings 
         let countdownTime = null;
         if (state.mode === 'competitivo') {
           if (state.ranking === 'Especialista') {
-            countdownTime = 210; // 3 minutos e 30 segundos
+            countdownTime = 210; 
           } else if (state.ranking === 'Rei do Campo Minado') {
-            countdownTime = 180; // 3 minutos
+            countdownTime = 180;
           }
         }
-      
         return {
           ...state,
           board: newBoard,
@@ -158,10 +144,9 @@ const gameReducer = (state, action) => {
           gameOverVisible: false,
           isWin: false,
           countdownTime: countdownTime,
-          level, // Corrigido para garantir a consistência
+          level,
         };
       }
-  
 
     case 'OPEN_FIELD':
       if (state.lost || state.won) return state;
@@ -177,7 +162,7 @@ const gameReducer = (state, action) => {
       }
 
       console.log(
-        `OPEN_FIELD: Campo aberto em (${action.row}, ${action.column}) - Jogo ${
+        `Campo aberto em (${action.row}, ${action.column}) - Jogo ${
           lost ? 'perdido' : won ? 'vencido' : 'em andamento'
         }`
       );
@@ -199,11 +184,11 @@ const gameReducer = (state, action) => {
 
           let victoriesNeeded = 0;
           if (newRanking === 'Iniciante') {
-            victoriesNeeded = 5;
+            victoriesNeeded = 1;
           } else if (newRanking === 'Amador') {
-            victoriesNeeded = 7;
+            victoriesNeeded = 1;
           } else if (newRanking === 'Especialista') {
-            victoriesNeeded = 7;
+            victoriesNeeded = 1;
           }
 
           if (newVictoriesCount >= victoriesNeeded) {
@@ -224,7 +209,6 @@ const gameReducer = (state, action) => {
               newCountdownTime = 180; // 3 minutos
               newScore = 0; // Iniciar pontuação
             }
-
             newVictoriesCount = 0;
           }
         }
@@ -239,10 +223,6 @@ const gameReducer = (state, action) => {
           newScore = Math.max(0, newScore - 1);
         }
       }
-
-      console.log(
-        `OPEN_FIELD: Ranking atualizado para ${newRanking}, pontuação: ${newScore}, contador de vitórias: ${newVictoriesCount}`
-      );
 
       return {
         ...state,
@@ -270,10 +250,6 @@ const gameReducer = (state, action) => {
       // Verificar se o jogo foi vencido após marcar/desmarcar a bandeira
       const wonAfterFlag = wonGame(newBoardSelect);
 
-      console.log(
-        `SELECT_FIELD: Bandeira invertida em (${action.row}, ${action.column}), Condição de vitória após a bandeira: ${wonAfterFlag}`
-      );
-
       let newVictoriesCountSelect = state.victoriesCount;
       let newRankingSelect = state.ranking;
       let newLevelSelect = state.level;
@@ -291,11 +267,11 @@ const gameReducer = (state, action) => {
 
           let victoriesNeeded = 0;
           if (newRankingSelect === 'Iniciante') {
-            victoriesNeeded = 5;
+            victoriesNeeded = 1;
           } else if (newRankingSelect === 'Amador') {
-            victoriesNeeded = 7;
+            victoriesNeeded = 1;
           } else if (newRankingSelect === 'Especialista') {
-            victoriesNeeded = 7;
+            victoriesNeeded = 1;
           }
 
           if (newVictoriesCountSelect >= victoriesNeeded) {
@@ -316,7 +292,6 @@ const gameReducer = (state, action) => {
               newCountdownTimeSelect = 180; // 3 minutos
               newScoreSelect = 0; // Iniciar pontuação
             }
-
             newVictoriesCountSelect = 0;
           }
         }
@@ -325,10 +300,6 @@ const gameReducer = (state, action) => {
       if (wonAfterFlag && state.mode === 'casual') {
         // Lógica para o modo casual se necessário
       }
-
-      console.log(
-        `SELECT_FIELD: Ranking atualizado para ${newRankingSelect}, pontuação: ${newScoreSelect}, contador de vitórias: ${newVictoriesCountSelect}`
-      );
 
       return {
         ...state,
@@ -345,13 +316,14 @@ const gameReducer = (state, action) => {
         previousRanking: promotionOccurredSelect ? previousRankingSelect : state.previousRanking,
       };
 
+      // perda por tempo
     case 'GAME_OVER_TIME_UP':
-      console.log(`GAME_OVER_TIME_UP: O tempo acabou. Ranking: ${state.ranking}`);
-
+      console.log(`O tempo acabou. Ranking: ${state.ranking}`);
+      // atualização da pontuação em caso de perda por tempo 
       let updatedScore = state.score;
       if (state.ranking === 'Rei do Campo Minado') {
-        // Subtrair 1 ponto no ranking "Rei do Campo Minado", mínimo zero
-        updatedScore = Math.max(0, updatedScore - 1);
+        // Subtrair 1 ponto no ranking "Rei do Campo Minado", o mínimo é zero
+        updatedScore = Math.max(0, updatedScore - 1); 
       }
 
       return {
@@ -368,20 +340,19 @@ const gameReducer = (state, action) => {
         score: updatedScore,
       };
 
+      // perda por sair do jogo em andamento 
     case 'LOSE_POINT_FOR_EXIT':
       const updatedScoreForExit = Math.max(0, state.score - 1);
-      console.log(`LOSE_POINT_FOR_EXIT: Pontuação ajustada para ${updatedScoreForExit}`);
+      console.log(`Pontuação ajustada para ${updatedScoreForExit}`);
       return {
         ...state,
         score: updatedScoreForExit,
       };
 
     case 'TOGGLE_GAME_OVER':
-      console.log(`TOGGLE_GAME_OVER: gameOverVisible alternado para ${!state.gameOverVisible}`);
       return { ...state, gameOverVisible: !state.gameOverVisible };
 
     case 'HIDE_PROMOTION':
-      console.log('HIDE_PROMOTION: Tela de promoção oculta');
       return {
         ...state,
         promotionVisible: false,
@@ -390,29 +361,28 @@ const gameReducer = (state, action) => {
 
     case 'TOGGLE_BUTTON_SOUND':
       console.log(
-        `TOGGLE_BUTTON_SOUND: Som dos botões ${
+        `Som dos botões ${
           state.isButtonSoundMuted ? 'ativado' : 'desativado'
         }`
       );
       return { ...state, isButtonSoundMuted: !state.isButtonSoundMuted };
 
     case 'TOGGLE_MUSIC':
-      console.log(`TOGGLE_MUSIC: Música ${state.isMusicMuted ? 'ativada' : 'desativada'}`);
+      console.log(`Música ${state.isMusicMuted ? 'ativada' : 'desativada'}`);
       return { ...state, isMusicMuted: !state.isMusicMuted };
-
+ 
     case 'SET_MUSIC_VOLUME':
-      console.log(`SET_MUSIC_VOLUME: Volume da música ajustado para ${action.volume}`);
+      console.log(`Volume da música ajustado para ${action.volume}`);
       return { ...state, musicVolume: action.volume };
 
     case 'LOAD_GAME_STATE':
-      console.log('LOAD_GAME_STATE: Carregando estado do jogo salvo');
       return {
         ...state,
         ...action.payload,
       };
 
     default:
-      console.log(`Unknown action type: ${action.type}`);
+      console.log(`${action.type}`);
       return state;
   }
 };
@@ -422,61 +392,59 @@ export const GameContext = createContext();
 export const GameProvider = ({ children }) => {
   const [state, dispatch] = useReducer(gameReducer, initialState);
 
-  // executa sempre que o estado de ranking ou de score muda 
+  // executa sempre que o estado de ranking ou de score muda, salvando o novo estado (modo competitivo)
   const saveGameState = async (gameState) => {
     try {
       const jsonState = JSON.stringify(gameState);
       await AsyncStorage.setItem('gameState', jsonState);
-      console.log('Estado do jogo salvo.');
     } catch (error) {
       console.error('Erro para salvar o esatdo do jogo:', error);
     }
   };
 
-  // Função para carregar o estado do jogo
+  // Função para carregar o estado do jogo (modo competitivo)
   const loadGameState = async () => {
     try {
       const jsonState = await AsyncStorage.getItem('gameState');
       if (jsonState !== null) {
         const gameState = JSON.parse(jsonState);
         dispatch({ type: 'LOAD_GAME_STATE', payload: gameState });
-        console.log('Game state loaded successfully.');
       }
     } catch (error) {
       console.error('Error loading game state:', error);
     }
   };
 
-  // Carregar o estado do jogo quando o componente monta
+  // Carregar o estado do jogo quando o componente monta 
   useEffect(() => {
     loadGameState();
   }, []);
 
-  // Salvar o estado do jogo sempre que ele mudar
+  // Salvar o estado do jogo sempre que ele mudar (modo competitivo)
   useEffect(() => {
     const { ranking, victoriesCount, score, level, previousRanking } = state;
     const gameStateToSave = { ranking, victoriesCount, score, level, previousRanking };
     saveGameState(gameStateToSave);
   }, [state.ranking, state.victoriesCount, state.score, state.level, state.previousRanking]);
 
-  // Função para salvar o melhor tempo
+  // Função para salvar o melhor tempo (modo casual)
   const saveBestTime = async (level, time) => {
     try {
-      if (time <= 0) {
+      if (time <= 0) { // garantindo que não será salvo tempo = 0 
         console.warn('Tempo inválido, não será salvo:', time);
         return;
       }
 
-      const levelKey = getLevelKey(level);
-      const key = `bestTime_${levelKey}`;
-      const existingTime = await AsyncStorage.getItem(key);
+      const levelKey = getLevelKey(level); // pegando os níveis 0.1, 0.2, 0.3 em string
+      const key = `bestTime_${levelKey}`; // armazenando em key - "bestTime_easy"
+      const existingTime = await AsyncStorage.getItem(key); // obtendo o tempo atual salvo no AsyncStorage
 
-      if (!existingTime || time < parseFloat(existingTime)) {
-        await AsyncStorage.setItem(key, time.toString());
-        dispatch({ type: 'SET_BEST_TIME', level: levelKey, time });
-        console.log('Best time updated:', levelKey, time);
+      if (!existingTime || time < parseFloat(existingTime)) { // se o existingTime for null ou 
+        await AsyncStorage.setItem(key, time.toString());     // o timer atual for menor que o salvo
+        dispatch({ type: 'SET_BEST_TIME', level: levelKey, time }); // AsyncStorage o salva como melhor tempo em formato
+        console.log('Atualização melhor tempo:', levelKey, time);          // de string
       } else {
-        console.log('Best time not updated:', levelKey, time, 'Existing time:', existingTime);
+        console.log('Melhor tempo não atualizado:', levelKey, time, 'Tempo atual:', existingTime);
       }
     } catch (error) {
       console.error('Erro ao salvar o melhor tempo:', error);
@@ -484,15 +452,14 @@ export const GameProvider = ({ children }) => {
   };
 
   // Função para carregar o melhor tempo
-  const loadBestTime = async (level) => {
+  const loadBestTime = async (level) => { // atualiza o estado global do jogo com o melhor tempo carregado 
     try {
       const levelKey = getLevelKey(level);
       const key = `bestTime_${levelKey}`;
       const time = await AsyncStorage.getItem(key);
-      const formattedTime = time ? parseFloat(time) : null;
-      dispatch({ type: 'SET_BEST_TIME', level: levelKey, time: formattedTime });
-      console.log(`loadBestTime: Melhor tempo para ${levelKey} carregado: ${formattedTime}`);
-      return formattedTime;
+      const formattedTime = time ? parseFloat(time) : null; // passa o tempo de string para número 
+      dispatch({ type: 'SET_BEST_TIME', level: levelKey, time: formattedTime }); // dispara a ação "Set_BEST_TIME" para atualizar o eatado global
+      return formattedTime; // retorna o tempo formatado 
     } catch (error) {
       console.error('Erro ao carregar o melhor tempo:', error);
       return null;
